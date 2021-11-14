@@ -72,14 +72,5 @@ providerRouter.get(
   })
 );
 
-/**providerRouter.get(
-  '/seed',
-  expressAsyncHandler(async (req, res) => {
-    // await User.remove({});
-    const createdUsers = await Provider.insertMany(data.users);
-    res.send({ createdUsers });
-  })
-);*/
-
 module.exports = providerRouter;
 //export default providerRouter;
