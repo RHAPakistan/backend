@@ -6,6 +6,7 @@ const { generateToken, isAuth } = require('../utils.js');
 
 const providerRouter = express.Router();
 
+//Register API
 providerRouter.post(
   '/register',
   expressAsyncHandler(async (req, res) => {
@@ -36,7 +37,7 @@ providerRouter.post(
   })
 );
 
-
+//Signin API
 providerRouter.post(
   '/signin',
   expressAsyncHandler(async (req, res) => {
@@ -58,7 +59,7 @@ providerRouter.post(
 );
 
 
-
+//Profile API (get profile by ID)
 providerRouter.get(
   '/:id',
   expressAsyncHandler(async (req, res) => {
