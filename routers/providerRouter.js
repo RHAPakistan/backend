@@ -36,7 +36,6 @@ providerRouter.post(
   })
 );
 
-
 providerRouter.post(
   '/signin',
   expressAsyncHandler(async (req, res) => {
@@ -57,8 +56,6 @@ providerRouter.post(
   })
 );
 
-
-
 providerRouter.get(
   '/:id',
   expressAsyncHandler(async (req, res) => {
@@ -68,6 +65,20 @@ providerRouter.get(
     } else {
       res.status(404).send({ message: 'User Not Found' });
     }
+  })
+);
+
+providerRouter.delete(
+  '/:id',
+  expressAsyncHandler(async (req, res) => {
+    const user = await Provider.findByIdAndDelete(req.params.id);
+    
+    console.log(user)
+    if(user){
+        res.status(500).send({"success":"Provider deleted succesfully"})
+      }else{
+      res.send({"message":"The user doesn't exist"})
+      }    
   })
 );
 
