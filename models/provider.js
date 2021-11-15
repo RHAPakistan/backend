@@ -1,5 +1,4 @@
 const  mongoose  = require("mongoose");
-//const { Schema } = require("mongoose");
 
 const providerSchema = new mongoose.Schema({
     fullName: { type: String, required: true },
@@ -12,5 +11,4 @@ const providerSchema = new mongoose.Schema({
     gender: { type: String, required: true }
 })
 
-const Provider = mongoose.model("Provider", providerSchema);
-module.exports = Provider;
+module.exports = mongoose.model("Provider", providerSchema);

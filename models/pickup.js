@@ -1,7 +1,6 @@
-import mongoose from 'mongoose';
-import { Schema } from 'mongoose';
+const  mongoose  = require("mongoose");
 
-const pickupSchema = new Schema({
+const pickupSchema = new mongoose.Schema({
     provider: { type: ObjectId, ref: 'provider', required: [true] },
     admin: { type: ObjectId, ref: 'admin' },
     volunteer: { type: ObjectId, ref: 'volunteer' },
@@ -16,4 +15,4 @@ const pickupSchema = new Schema({
     status: { type: String }
 })
 
-module.exports = mongoose.model('order', pickupSchema);
+module.exports = mongoose.model('Order', pickupSchema);

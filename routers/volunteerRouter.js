@@ -1,22 +1,22 @@
 const express = require('express');
 const expressAsyncHandler = require('express-async-handler');
 const bcrypt = require('bcryptjs');
-const Provider = require('../models/provider');
+const Volunteer = require('../models/volunteer');
 const { generateToken, isAuth } = require('../utils.js');
 
-const providerRouter = express.Router();
+const volunteerRouter = express.Router();
 
 //Register API
-providerRouter.post(
+volunteerRouter.post(
   '/register',
   expressAsyncHandler(async (req, res) => {
     console.log(req.body);
-    const user = await Provider.findOne({ email: req.body.email });
+    const user = await Volunteer.findOne({ email: req.body.email });
     if(user){
       res.send({message: "email already exist"})
     }
     else{
-      const user = new Provider({
+      const user = new Volunteer({
         fullName: req.body.fullName,
         email: req.body.email,
         password: bcrypt.hashSync(req.body.password, 8),
@@ -24,7 +24,8 @@ providerRouter.post(
         cnic: req.body.cnic,
         dateOfBirth: req.body.dateOfBirth,
         address: req.body.address,
-        gender: req.body.gender
+        gender: req.body.gender,
+        role: req.body.role
       });
       const createdUser = await user.save();
       res.send({
@@ -37,11 +38,11 @@ providerRouter.post(
   })
 );
 
-//Signin API
-providerRouter.post(
+//SignIn API
+volunteerRouter.post(
   '/signin',
   expressAsyncHandler(async (req, res) => {
-    const user = await Provider.findOne({ email: req.body.email });
+    const user = await Volunteer.findOne({ email: req.body.email });
 
     console.log(req.body);
     if (user) {
@@ -58,12 +59,11 @@ providerRouter.post(
   })
 );
 
-
-//Profile API (get profile by ID)
-providerRouter.get(
+//profile API
+volunteerRouter.get(
   '/:id',
   expressAsyncHandler(async (req, res) => {
-    const user = await Provider.findById(req.params.id);
+    const user = await Volunteer.findById(req.params.id);
     if (user) {
       res.send(user);
     } else {
@@ -72,19 +72,5 @@ providerRouter.get(
   })
 );
 
-providerRouter.delete(
-  '/:id',
-  expressAsyncHandler(async (req, res) => {
-    const user = await Provider.findByIdAndDelete(req.params.id);
-    
-    console.log(user)
-    if(user){
-        res.status(500).send({"success":"Provider deleted succesfully"})
-      }else{
-      res.send({"message":"The user doesn't exist"})
-      }    
-  })
-);
-
-module.exports = providerRouter;
-//export default providerRouter;
+module.exports = volunteerRouter;
+//export default volunteerRouter;
