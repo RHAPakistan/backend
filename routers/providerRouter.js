@@ -6,7 +6,7 @@ const { generateToken, isAuth } = require('../utils.js');
 
 const providerRouter = express.Router();
 
-//Register API
+//Register API | create
 providerRouter.post(
   '/register',
   expressAsyncHandler(async (req, res) => {
@@ -72,6 +72,7 @@ providerRouter.get(
   })
 );
 
+//delete
 providerRouter.delete(
   '/:id',
   expressAsyncHandler(async (req, res) => {
@@ -86,5 +87,20 @@ providerRouter.delete(
   })
 );
 
+//update
+providerRouter.patch(
+  '/:id',
+  expressAsyncHandler(async (req,res)=>{
+    const user = await Provider.findByIdAndUpdate(req.params.id,req.body)
+    if(user){
+      res.send("User info updated succesfully")
+    }
+    else{
+      res.send("User info not updated")
+    }
+
+  })
+  
+);
 module.exports = providerRouter;
 //export default providerRouter;
