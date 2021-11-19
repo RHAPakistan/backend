@@ -5,7 +5,7 @@ const pickupSchema = new mongoose.Schema({
     admin: { type: mongoose.Schema.Types.ObjectId, ref: 'admin' },
     volunteer: { type: mongoose.Schema.Types.ObjectId, ref: 'volunteer' },
     pickupAddress: { type: String, required: [true, "the address is missing"] },
-    deliveryAddress: { type: String, required: [true, "the address is missing"] },
+    deliveryAddress: { type: String },
     placementTime: { type: Date },
     acceptanceTime: { type: Date },
     pickUpTime: { type: Date },
