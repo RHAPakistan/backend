@@ -30,8 +30,8 @@ mongoose.connect(process.env.MONGODB_URL || 'mongodb://localhost:27017/rhaDB', {
 .catch((error) => console.error("MongoDB connection failed:", error.message))
 
 //routes
-app.use('/api/providers', providerRouter);
-app.use('/api/volunteers', volunteerRouter);
+app.use('/api/provider', providerRouter);
+app.use('/api/volunteer', volunteerRouter);
 
 
 app.listen(port, () => {
