@@ -15,4 +15,4 @@ const pickupSchema = new mongoose.Schema({
     status: { type: String }
 })
 
-module.exports = mongoose.model('Order', pickupSchema);
+module.exports = mongoose.model('Pickup', pickupSchema);
