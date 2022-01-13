@@ -12,7 +12,7 @@ const pickupSchema = new mongoose.Schema({
     deliveryTime: { type: Date },
     amountOfFood: { type: String },
     typeOfFood: { type: String },
-    status: { type: String }
+    status: {type: Number, enum: [0,1,2,3], required: true}
 })
 
 module.exports = mongoose.model('Pickup', pickupSchema);

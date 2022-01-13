@@ -2,7 +2,7 @@ const express = require('express');
 const expressAsyncHandler = require('express-async-handler');
 const bcrypt = require('bcryptjs');
 const Volunteer = require('../models/volunteer');
-const Order = require('../models/pickup');
+const Pickup = require('../models/pickup');
 const { generateToken, isAuth } = require('../utils.js');
 //const { isValidObjectId } = require('mongoose');
 
@@ -18,17 +18,12 @@ volunteerRouter.post(
       res.send({message: "email already exist"})
     }
     else{
-      const user = new Volunteer({
-        fullName: req.body.fullName,
-        email: req.body.email,
-        password: bcrypt.hashSync(req.body.password, 8),
-        contactNumber: req.body.contactNumber,
-        cnic: req.body.cnic,
-        dateOfBirth: req.body.dateOfBirth,
-        address: req.body.address,
-        gender: req.body.gender,
-        role: req.body.role
-      });
+      //temp = req.body
+      req.body.password = bcrypt.hashSync(req.body.password, 8) 
+      const user = new Volunteer(
+        req.body
+      );
+
       const createdUser = await user.save();
       res.send({
         error: 0,
@@ -122,21 +117,19 @@ volunteerRouter.delete(
   })
 );
 
-
-
 //TestAPI (not working)
-volunteerRouter.get(
-  '/addOrder',
+volunteerRouter.post(
+  '/addPickup',
   expressAsyncHandler(async (req, res)=> {
     const volun = Volunteer.findById("6190f6c774b2f1f508b1e3f4");
     const pro = Provider.findById("6190eaffa9186f16a0113139");
-    const order = new Order({
+    const pickup = new Pickup({
       provider: volun._id,
       volunteer: pro._id,
       pickupAddress: "shadi hall, korangi",
       deliveryAddress: "RHA storage, korangi"
     });
-    order.save();
+    pickup.save();
   })
 )
 module.exports = volunteerRouter;

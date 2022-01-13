@@ -6,7 +6,7 @@ const volunteerSchema = new mongoose.Schema({
     email: { type: String, required: true },
     password: { type: String, required: true },
     cnic: { type: String, required: true },
-    dateOfBirth: { type: String, required: true },
+    dateOfBirth: { type: Date, required: true },
     address: { type: String, required: true },
     gender: { type: String, required: true },
     role: { type: String, enum: ['guest', 'registered'], required: true }

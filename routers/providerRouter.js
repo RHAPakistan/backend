@@ -1,40 +1,19 @@
+
 const express = require('express');
 const expressAsyncHandler = require('express-async-handler');
 const bcrypt = require('bcryptjs');
 const Provider = require('../models/provider');
 const { generateToken, isAuth } = require('../utils.js');
 
+
 const providerRouter = express.Router();
+
+var providerHelpers = require("../helpers/providerHelpers.js")
 
 //Register API | create
 providerRouter.post(
   '/register',
-  expressAsyncHandler(async (req, res) => {
-    console.log(req.body);
-    const user = await Provider.findOne({ email: req.body.email });
-    if(user){
-      res.send({message: "email already exist"})
-    }
-    else{
-      const user = new Provider({
-        fullName: req.body.fullName,
-        email: req.body.email,
-        password: bcrypt.hashSync(req.body.password, 8),
-        contactNumber: req.body.contactNumber,
-        cnic: req.body.cnic,
-        dateOfBirth: req.body.dateOfBirth,
-        address: req.body.address,
-        gender: req.body.gender
-      });
-      const createdUser = await user.save();
-      res.send({
-        _id: createdUser._id,
-        name: createdUser.name,
-        email: createdUser.email,
-        token: generateToken(createdUser),
-      });
-    }
-  })
+  providerHelpers.register
 );
 
 //Signin API
