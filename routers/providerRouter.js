@@ -1,4 +1,3 @@
-
 const express = require('express');
 const expressAsyncHandler = require('express-async-handler');
 const bcrypt = require('bcryptjs');
@@ -11,75 +10,32 @@ const providerRouter = express.Router();
 var providerHelpers = require("../helpers/providerHelpers.js")
 
 //Register API | create
-providerRouter.post(
-  '/register',
-  providerHelpers.register
-);
+providerRouter.post('/register', providerHelpers.register);
 
 //Signin API
-providerRouter.post(
-  '/signin',
-  expressAsyncHandler(async (req, res) => {
-    const user = await Provider.findOne({ email: req.body.email });
-
-    console.log(req.body);
-    if (user) {
-      if (bcrypt.compareSync(req.body.password, user.password)) {
-        res.send({
-          _id: user._id,
-          fullName: user.fullName,
-          email: user.email,
-          token: generateToken(user),
-        });
-      }
-    }
-    res.status(401).send({ message: 'Invalid email or password' });
-  })
-);
-
+providerRouter.post('/signin', providerHelpers.signin);
 
 //Profile API (get profile by ID)
-providerRouter.get(
-  '/:id',
-  expressAsyncHandler(async (req, res) => {
-    const user = await Provider.findById(req.params.id);
-    if (user) {
-      res.send(user);
-    } else {
-      res.status(404).send({ message: 'User Not Found' });
-    }
-  })
-);
+providerRouter.get('/:id', providerHelpers.getUser);
 
 //delete
-providerRouter.delete(
-  '/:id',
-  expressAsyncHandler(async (req, res) => {
-    const user = await Provider.findByIdAndDelete(req.params.id);
-    
-    console.log(user)
-    if(user){
-        res.status(500).send({"success":"Provider deleted succesfully"})
-      }else{
-      res.send({"message":"The user doesn't exist"})
-      }    
-  })
-);
+providerRouter.delete('/:id', providerHelpers.deleteUser);
 
 //update
-providerRouter.patch(
-  '/:id',
-  expressAsyncHandler(async (req,res)=>{
-    const user = await Provider.findByIdAndUpdate(req.params.id,req.body)
-    if(user){
-      res.send("User info updated succesfully")
-    }
-    else{
-      res.send("User info not updated")
-    }
+providerRouter.patch('/:id', providerHelpers.updateUser);
 
-  })
-  
-);
-module.exports = providerRouter;
+//create pickup
+providerRouter.post("/pickup/register", providerHelpers.createPickup)
+
+//Get pickup
+providerRouter.get('/pickup/:id', providerHelpers.getPickup);
+
+//delete pickup
+providerRouter.delete("/pickup/:id", providerHelpers.deletePickup)
+
+
+//update pickup
+providerRouter.patch("/pickup/:id", providerHelpers.updatePickup)
+
 //export default providerRouter;
+module.exports = providerRouter;
