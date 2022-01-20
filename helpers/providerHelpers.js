@@ -52,6 +52,7 @@ module.exports = {
 
   //get provider
   getUser: expressAsyncHandler(async (req, res) => {
+    
     const user = await Provider.findById(req.params.id);
     if (user) {
       res.send(user);

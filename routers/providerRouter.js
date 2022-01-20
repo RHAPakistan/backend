@@ -1,7 +1,4 @@
 const express = require('express');
-const expressAsyncHandler = require('express-async-handler');
-const bcrypt = require('bcryptjs');
-const Provider = require('../models/provider');
 const { generateToken, isAuth } = require('../utils.js');
 
 
@@ -10,32 +7,31 @@ const providerRouter = express.Router();
 var providerHelpers = require("../helpers/providerHelpers.js")
 
 //Register API | create
-providerRouter.post('/register', providerHelpers.register);
+providerRouter.post('/register', isAuth,providerHelpers.register);
 
 //Signin API
-providerRouter.post('/signin', providerHelpers.signin);
+providerRouter.post('/signin', isAuth,providerHelpers.signin);
 
 //Profile API (get profile by ID)
-providerRouter.get('/:id', providerHelpers.getUser);
+providerRouter.get('/:id', isAuth,providerHelpers.getUser);
 
 //delete
-providerRouter.delete('/:id', providerHelpers.deleteUser);
+providerRouter.delete('/:id', isAuth, providerHelpers.deleteUser);
 
 //update
-providerRouter.patch('/:id', providerHelpers.updateUser);
+providerRouter.patch('/:id', isAuth, providerHelpers.updateUser);
 
 //create pickup
-providerRouter.post("/pickup/register", providerHelpers.createPickup)
+providerRouter.post("/pickup/register", isAuth, providerHelpers.createPickup)
 
 //Get pickup
-providerRouter.get('/pickup/:id', providerHelpers.getPickup);
+providerRouter.get('/pickup/:id', isAuth, providerHelpers.getPickup);
 
 //delete pickup
-providerRouter.delete("/pickup/:id", providerHelpers.deletePickup)
-
+providerRouter.delete("/pickup/:id", isAuth, providerHelpers.deletePickup)
 
 //update pickup
-providerRouter.patch("/pickup/:id", providerHelpers.updatePickup)
+providerRouter.patch("/pickup/:id", isAuth, providerHelpers.updatePickup)
 
 //export default providerRouter;
 module.exports = providerRouter;
