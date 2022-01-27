@@ -2,8 +2,10 @@ const express = require('express');
 const expressAsyncHandler = require('express-async-handler');
 const bcrypt = require('bcryptjs');
 const Volunteer = require('../models/volunteer');
+const Provider = require('../models/provider');
 const Pickup = require('../models/pickup');
 const { generateToken, isAuth } = require('../utils.js');
+const pickup = require('../models/pickup');
 //const { isValidObjectId } = require('mongoose');
 
 const volunteerRouter = express.Router();
@@ -18,12 +20,17 @@ volunteerRouter.post(
       res.send({message: "email already exist"})
     }
     else{
-      //temp = req.body
-      req.body.password = bcrypt.hashSync(req.body.password, 8) 
-      const user = new Volunteer(
-        req.body
-      );
-
+      const user = new Volunteer({
+        fullName: req.body.fullName,
+        email: req.body.email,
+        password: bcrypt.hashSync(req.body.password, 8),
+        contactNumber: req.body.contactNumber,
+        cnic: req.body.cnic,
+        dateOfBirth: req.body.dateOfBirth,
+        address: req.body.address,
+        gender: req.body.gender,
+        role: req.body.role
+      });
       const createdUser = await user.save();
       res.send({
         error: 0,
@@ -73,7 +80,7 @@ volunteerRouter.get(
 
 
 //edit profile
-volunteerRouter.post(
+volunteerRouter.patch(
   '/editProfile/:id',
   isAuth,
   expressAsyncHandler(async (req, res) => {
@@ -117,20 +124,69 @@ volunteerRouter.delete(
   })
 );
 
-//TestAPI (not working)
+
+
+//TestAPI
 volunteerRouter.post(
   '/addPickup',
   expressAsyncHandler(async (req, res)=> {
-    const volun = Volunteer.findById("6190f6c774b2f1f508b1e3f4");
-    const pro = Provider.findById("6190eaffa9186f16a0113139");
+    const volun = await Volunteer.findById(req.body.idv);
+    const pro = await Provider.findById(req.body.idp);
     const pickup = new Pickup({
-      provider: volun._id,
-      volunteer: pro._id,
-      pickupAddress: "shadi hall, korangi",
-      deliveryAddress: "RHA storage, korangi"
+      provider: volun,
+      volunteer: pro,
+      pickupAddress: "birthday party, PECHS",
+      deliveryAddress: "RHA storage, Saddar",
+      status: 1,
     });
-    pickup.save();
+    const createdPickup = await pickup.save();
+    res.send(createdPickup);
   })
 )
+
+//get Pickups
+volunteerRouter.get(
+  '/getPickups',
+  expressAsyncHandler(async (req,res)=>{
+    console.log("pehlay idhar");
+    const pickups = await Pickup.find();
+    console.log("phir idhar");
+    if(pickups){
+      res.send({error:0, pickups: pickups});
+    }
+    else{
+      res.status(404).send({error: 1, message: "No pickup found"});
+    }
+  })
+)
+
+//update pickup
+volunteerRouter.patch(
+  '/editPickup/:id',
+  expressAsyncHandler(async (req, res) => {
+    const pickup = await Pickup.findByIdAndUpdate(req.params.id, req.body)
+    if (pickup){
+      const updatedPickup = await Pickup.findById(req.params.id);
+      res.send({error: 0, message: "Pickup successfully updated", updatedPickup: updatedPickup});
+    }else{
+      res.status(404).send({message: "Pickup not found"});
+    }
+  })
+);
+
+//cancel pickup
+volunteerRouter.patch(
+  '/cancelPickup/:id',
+  expressAsyncHandler(async (req, res) => {
+    const pickup = await Pickup.findById(req.params.id)
+    if (pickup){
+      await Pickup.updateOne({_id: req.params.id}, {$unset: {volunteer: 1 }, status:1});
+      const updatedPickup = await Pickup.findById(req.params.id);
+      res.send({error: 0, message: "Pickup successfully updated", updatedPickup: updatedPickup});
+    }else{
+      res.status(404).send({message: "Pickup not found"});
+    }
+  })
+);
 module.exports = volunteerRouter;
 //export default volunteerRouter;
