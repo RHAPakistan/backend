@@ -68,6 +68,7 @@ volunteerRouter.post(
 //profile API
 volunteerRouter.get(
   '/:id',
+  isAuth,
   expressAsyncHandler(async (req, res) => {
     const user = await Volunteer.findById(req.params.id);
     if (user) {
@@ -133,8 +134,8 @@ volunteerRouter.post(
     const volun = await Volunteer.findById(req.body.idv);
     const pro = await Provider.findById(req.body.idp);
     const pickup = new Pickup({
-      provider: volun,
-      volunteer: pro,
+      provider: pro,
+      volunteer: volun,
       pickupAddress: "birthday party, PECHS",
       deliveryAddress: "RHA storage, Saddar",
       status: 1,
@@ -144,12 +145,12 @@ volunteerRouter.post(
   })
 )
 
-//get Pickups
+//get Pickups (not working)
 volunteerRouter.get(
   '/getPickups',
   expressAsyncHandler(async (req,res)=>{
     console.log("pehlay idhar");
-    const pickups = await Pickup.find();
+    const pickups = await Pickup.find({status: 1});
     console.log("phir idhar");
     if(pickups){
       res.send({error:0, pickups: pickups});
@@ -162,14 +163,15 @@ volunteerRouter.get(
 
 //update pickup
 volunteerRouter.patch(
-  '/editPickup/:id',
+  '/updatePickup/:id',
+  isAuth,
   expressAsyncHandler(async (req, res) => {
     const pickup = await Pickup.findByIdAndUpdate(req.params.id, req.body)
     if (pickup){
       const updatedPickup = await Pickup.findById(req.params.id);
       res.send({error: 0, message: "Pickup successfully updated", updatedPickup: updatedPickup});
     }else{
-      res.status(404).send({message: "Pickup not found"});
+      res.status(404).send({error: 1, message: "Pickup not found"});
     }
   })
 );
@@ -177,14 +179,21 @@ volunteerRouter.patch(
 //cancel pickup
 volunteerRouter.patch(
   '/cancelPickup/:id',
+  isAuth,
   expressAsyncHandler(async (req, res) => {
     const pickup = await Pickup.findById(req.params.id)
     if (pickup){
-      await Pickup.updateOne({_id: req.params.id}, {$unset: {volunteer: 1 }, status:1});
-      const updatedPickup = await Pickup.findById(req.params.id);
-      res.send({error: 0, message: "Pickup successfully updated", updatedPickup: updatedPickup});
+      console.log(pickup.volunteer.toString());
+      if(pickup.volunteer.toString() === req.body.volunteer_id){
+        await Pickup.updateOne({_id: req.params.id}, {$unset: {volunteer: 1 }, status:1});
+        const cancelledPickup = await Pickup.findById(req.params.id);
+        res.send({error: 0, message: "Pickup successfully updated", cancelledPickup: cancelledPickup});
+      }
+      else{
+        res.status(403).send({error: 1, message: "You don't have authorization to cancel this pickup"});
+      }
     }else{
-      res.status(404).send({message: "Pickup not found"});
+      res.status(404).send({error: 1, message: "Pickup not found"});
     }
   })
 );
