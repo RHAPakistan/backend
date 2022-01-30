@@ -10,6 +10,34 @@ const pickup = require('../models/pickup');
 
 const volunteerRouter = express.Router();
 
+//get Pickups
+volunteerRouter.get(
+  '/getPickups',
+  expressAsyncHandler(async (req,res)=>{
+    const pickups = await Pickup.find({status: 1});
+    if(pickups){
+      res.send({error:0, pickups: pickups});
+    }
+    else{
+      res.status(404).send({error: 1, message: "No pickup found"});
+    }
+  })
+)
+
+//profile API
+volunteerRouter.get(
+  '/:id',
+  isAuth,
+  expressAsyncHandler(async (req, res) => {
+    const user = await Volunteer.findById(req.params.id);
+    if (user) {
+      res.send({error: 0, user : user});
+    } else {
+      res.status(404).send({error: 1, message: 'User Not Found' });
+    }
+  })
+);
+
 //Register API
 volunteerRouter.post(
   '/register',
@@ -48,37 +76,30 @@ volunteerRouter.post(
   '/login',
   expressAsyncHandler(async (req, res) => {
     const user = await Volunteer.findOne({ email: req.body.email });
-
-    console.log(req.body);
+    //console.log(user._id);
     if (user) {
       if (bcrypt.compareSync(req.body.password, user.password)) {
+        const activePickups = await Pickup.find({status: 1});
+        const pickupHistory = await Pickup.find({volunteer_id: user._id});
         res.send({
           error: 0,
           _id: user._id,
           fullName: user.fullName,
           email: user.email,
+          activePickups: activePickups,
+          pickupHistory: pickupHistory,
           token: generateToken(user),
         });
       }
+      else{
+        res.status(401).send({error: 1, message: 'Invalid password' });
+      }
     }
-    res.status(401).send({error: 1, message: 'Invalid email or password' });
-  })
-);
-
-//profile API
-volunteerRouter.get(
-  '/:id',
-  isAuth,
-  expressAsyncHandler(async (req, res) => {
-    const user = await Volunteer.findById(req.params.id);
-    if (user) {
-      res.send({error: 0, user : user});
-    } else {
-      res.status(404).send({error: 1, message: 'User Not Found' });
+    else{
+      res.status(401).send({error: 1, message: 'Invalid email' });
     }
   })
 );
-
 
 //edit profile
 volunteerRouter.patch(
@@ -145,22 +166,6 @@ volunteerRouter.post(
   })
 )
 
-//get Pickups (not working)
-volunteerRouter.get(
-  '/getPickups',
-  expressAsyncHandler(async (req,res)=>{
-    console.log("pehlay idhar");
-    const pickups = await Pickup.find({status: 1});
-    console.log("phir idhar");
-    if(pickups){
-      res.send({error:0, pickups: pickups});
-    }
-    else{
-      res.status(404).send({error: 1, message: "No pickup found"});
-    }
-  })
-)
-
 //update pickup
 volunteerRouter.patch(
   '/updatePickup/:id',
@@ -183,7 +188,7 @@ volunteerRouter.patch(
   expressAsyncHandler(async (req, res) => {
     const pickup = await Pickup.findById(req.params.id)
     if (pickup){
-      console.log(pickup.volunteer.toString());
+      //console.log(pickup.volunteer.toString());
       if(pickup.volunteer.toString() === req.body.volunteer_id){
         await Pickup.updateOne({_id: req.params.id}, {$unset: {volunteer: 1 }, status:1});
         const cancelledPickup = await Pickup.findById(req.params.id);
