@@ -5,8 +5,6 @@ const Volunteer = require('../models/volunteer');
 const Provider = require('../models/provider');
 const Pickup = require('../models/pickup');
 const { generateToken, isAuth } = require('../utils.js');
-const pickup = require('../models/pickup');
-//const { isValidObjectId } = require('mongoose');
 
 const volunteerRouter = express.Router();
 
@@ -42,7 +40,7 @@ volunteerRouter.get(
 volunteerRouter.post(
   '/register',
   expressAsyncHandler(async (req, res) => {
-    console.log(req.body);
+    //console.log(req.body);
     const user = await Volunteer.findOne({ email: req.body.email });
     if(user){
       res.send({message: "email already exist"})
@@ -190,9 +188,9 @@ volunteerRouter.patch(
     if (pickup){
       //console.log(pickup.volunteer.toString());
       if(pickup.volunteer.toString() === req.body.volunteer_id){
-        await Pickup.updateOne({_id: req.params.id}, {$unset: {volunteer: 1 }, status:1});
+        await Pickup.updateOne({_id: req.params.id}, {$unset: {volunteer: 1 }, status:1, cancelTime: new Date()});
         const cancelledPickup = await Pickup.findById(req.params.id);
-        res.send({error: 0, message: "Pickup successfully updated", cancelledPickup: cancelledPickup});
+        res.send({error: 0, message: "Pickup successfully cancelled", cancelledPickup: cancelledPickup});
       }
       else{
         res.status(403).send({error: 1, message: "You don't have authorization to cancel this pickup"});
@@ -203,4 +201,3 @@ volunteerRouter.patch(
   })
 );
 module.exports = volunteerRouter;
-//export default volunteerRouter;
