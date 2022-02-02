@@ -9,6 +9,7 @@ const pickupSchema = new mongoose.Schema({
     placementTime: { type: Date },
     acceptanceTime: { type: Date },
     pickUpTime: { type: Date },
+    cancelTime: { type: Date },
     deliveryTime: { type: Date },
     amountOfFood: { type: String },
     typeOfFood: { type: String },
