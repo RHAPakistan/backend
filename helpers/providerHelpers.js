@@ -35,9 +35,12 @@ module.exports = {
 
   //signin provider
   signin: expressAsyncHandler(async (req, res) => {
+    console.log("Sign in request made");
+    console.log(req.body);
     const user = await Provider.findOne({ email: req.body.email });
-
+    
     if (user) {
+      console.log("WTF?!");
       if (bcrypt.compareSync(req.body.password, user.password)) {
         res.send({
           _id: user._id,
@@ -45,9 +48,12 @@ module.exports = {
           email: user.email,
           token: generateToken(user),
         });
+      }else{
+        res.status(401).send({"message": "Invalid email or password"});
       }
-    }
+    }else{
     res.status(401).send({ message: 'Invalid email or password' });
+    }
   }),
 
   //get provider
@@ -87,14 +93,21 @@ module.exports = {
 
   //create pickup
   createPickup: expressAsyncHandler(async (req, res) => {
-    const user = await Pickup.findById(req.body.id)
-    if (user){
-      res.send("Pickup alraedy exists")
+    const pickup = await Pickup.findOne({"provider":req.body.provider});
+    if (pickup){
+      res.status(202).send({
+        "message":"Pickup alraedy exists",
+        "alreadyExists":true
+      })
     }else {
       const pickup = new Pickup(req.body)
       const pickupCreated = await pickup.save()
-      res.send(
-        pickup
+      res.status(200).send(
+        {
+          "pickup": pickup,
+          "message":"pickup created",
+          "alreayExists":false
+        }
       )
     }
   }),

@@ -36,27 +36,28 @@ mongoose.connect(process.env.MONGODB_URL || 'mongodb://localhost:27017/rhaDB', {
 app.use('/api/provider', providerRouter);
 app.use('/api/volunteer', volunteerRouter);
 
-
 var server = app.listen(port, () => {
   console.log(`Server is running on port: ${port}`);
 });
 
 //experimenting with socket -> ignore what is below this for now
 //const httpServer = createServer(app);
-var io = socket(server);
+const io = socket(server);
 io.on("connection",(socket) => {
   console.log("Made socket connection", socket.id);
-  
-  //handle chat
+  app.set("socketio",socket);
+  //onst socket = req.app.get("socketio");
+//  handle chat
   socket.on("chat", (data)=>{
     console.log("helo s");
-    console.log(socket);
-    console.log(data);
-    io.sockets.emit("chat",data);
-    console.log("hi");
-    socket.emit("Request Accepted", {"Hello":"world"});
+    // console.log(socket);
+    // console.log(data);
+    //io.sockets.emit("chat",data);
+    // console.log("hi");
+    
   });
-  
+
 })
+
 
 

@@ -10,6 +10,24 @@ const pickup = require('../models/pickup');
 
 const volunteerRouter = express.Router();
 
+
+//get Pickups
+volunteerRouter.get(
+  '/getPickups',
+  expressAsyncHandler(async (req,res)=>{
+    console.log("pehlay idhar");
+    res.send({sasd:"sss"});
+    // const pickups = await Pickup.find();
+    // console.log("phir idhar");
+    // if(pickups){
+    //   res.send({error:0, pickups: pickups});
+    // }
+    // else{
+    //   res.status(404).send({error: 1, message: "No pickup found"});
+    // }
+  })
+)
+
 //Register API
 volunteerRouter.post(
   '/register',
@@ -144,21 +162,6 @@ volunteerRouter.post(
   })
 )
 
-//get Pickups
-volunteerRouter.get(
-  '/getPickups',
-  expressAsyncHandler(async (req,res)=>{
-    console.log("pehlay idhar");
-    const pickups = await Pickup.find();
-    console.log("phir idhar");
-    if(pickups){
-      res.send({error:0, pickups: pickups});
-    }
-    else{
-      res.status(404).send({error: 1, message: "No pickup found"});
-    }
-  })
-)
 
 //update pickup
 volunteerRouter.patch(

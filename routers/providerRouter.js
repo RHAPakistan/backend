@@ -6,11 +6,23 @@ const providerRouter = express.Router();
 
 var providerHelpers = require("../helpers/providerHelpers.js")
 
+providerRouter.get("/abc",async (req, res)=>{
+    const socket = req.app.get("socketio");
+    socket.emit("Food picked",{"someone":"ge2t"});
+    console.log("hi");
+    res.send({abcd:"you go"});
+});
+providerRouter.get("/abc1",async (req, res)=>{
+    const socket = req.app.get("socketio");
+    socket.emit("Request Accepted",{"someone":"ge2t"});
+    console.log("hi");
+    res.send({abcd:"you go"});
+});
 //Register API | create
-providerRouter.post('/register', isAuth,providerHelpers.register);
+providerRouter.post('/register', providerHelpers.register);
 
 //Signin API
-providerRouter.post('/signin', isAuth,providerHelpers.signin);
+providerRouter.post('/signin', providerHelpers.signin);
 
 //Profile API (get profile by ID)
 providerRouter.get('/:id', isAuth,providerHelpers.getUser);
@@ -32,6 +44,7 @@ providerRouter.delete("/pickup/:id", isAuth, providerHelpers.deletePickup)
 
 //update pickup
 providerRouter.patch("/pickup/:id", isAuth, providerHelpers.updatePickup)
+
 
 //export default providerRouter;
 module.exports = providerRouter;
