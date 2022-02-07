@@ -23,7 +23,7 @@ pickupRouter.get(
   })
 );
 
-//get detials (some missing info)
+//get detials
 pickupRouter.get(
   '/:id',
   expressAsyncHandler(async (req,res)=>{
