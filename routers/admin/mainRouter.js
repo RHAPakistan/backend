@@ -2,7 +2,8 @@ const express = require('express');
 const expressAsyncHandler = require('express-async-handler');
 const bcrypt = require('bcryptjs');
 const Admin = require('../../models/admin');
-const { generateToken } = require('../../utils.js');
+const Token = require('../../models/token');
+const { generateToken, sendEmail } = require('../../utils.js');
 
 const mainRouter = express.Router();
 
@@ -62,5 +63,52 @@ mainRouter.post(
     })
   );
   
+  mainRouter.post(
+    '/auth/forgot',
+    expressAsyncHandler(async (req, res) =>{
+      const user = await Admin.findOne({ email: req.body.email });
+      if (user) {
+        var val = Math.floor(100000 + Math.random() * 900000);
+        const otp = val.toString();
+        const token = new Token({
+          userId :user._id,
+          otp: otp
+        });
+        await token.save();
+        const text = "You have requested for password reset, kindly note the OTP given below to verify yourself in the app. \n Your OTP is: ";
+        const message = text.concat(otp);
+        await sendEmail(user.email, "Password reset for RHA", message);
+        res.send({error: 0, message:"Password-reset-email has been sent to your Email address"});
+      }
+      else{
+        res.status(401).send({error: 1, message: 'Invalid email' });
+      }
+    })
+  );
+
+  mainRouter.post(
+    '/auth/forgot/verify',
+    expressAsyncHandler(async (req, res)=>{
+      const user = await Admin.findOne({ email: req.body.email });
+      if(user){
+        const token = await Token.findOne({ userId: user._id, otp: req.body.otp});
+        if(token){
+          await Admin.updateOne(
+            {_id: user._id},
+            { password: bcrypt.hashSync(req.body.newPassword, 8)},
+            { upsert: true }
+          );
+          await token.remove();
+          res.send({error: 0, message: 'Your Password has been sucessfully changed.'});
+        }
+        else{
+          res.status(401).send({error: 1, message: 'OTP invalid or expired'});  
+        }
+      }
+      else{
+        res.status(401).send({error: 1, message: 'Something went wrong.' });
+      }
+    })
+  );
 
   module.exports = mainRouter;
