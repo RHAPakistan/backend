@@ -63,6 +63,7 @@ mainRouter.post(
     })
   );
   
+//to send otp to person's email
   mainRouter.post(
     '/auth/forgot',
     expressAsyncHandler(async (req, res) =>{
@@ -86,6 +87,7 @@ mainRouter.post(
     })
   );
 
+//to verify that otp against that mail
   mainRouter.post(
     '/auth/forgot/verify',
     expressAsyncHandler(async (req, res)=>{
