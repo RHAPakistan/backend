@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const nodemailer = require("nodemailer");
 
 const generateToken = (user) => {
   return jwt.sign(
@@ -15,12 +16,12 @@ const generateToken = (user) => {
 };
 
 const isAuth = (req, res, next) => {
-  const token = req.body.token || req.query.token || req.headers["x-access-token"];
-  if (token) {
-    //const token = authorization.slice(7, authorization.length); // Bearer XXXXXX
+  const authorization = req.headers.authorization;
+  if (authorization) {
+    const token = authorization.slice(7, authorization.length); // Bearer XXXXXX
     jwt.verify(
       token,
-      'somethingsecret',
+      process.env.JWT_SECRET || 'somethingsecret',
       (err, decode) => {
         if (err) {
           res.status(401).send({ message: 'Invalid Token' });
@@ -35,4 +36,31 @@ const isAuth = (req, res, next) => {
   }
 };
 
-module.exports = {generateToken, isAuth};
+const sendEmail = async (email, subject, text) => {
+  try {
+      const transporter = nodemailer.createTransport({
+          //host: 'localhost',
+          service: 'gmail',
+          port: 587,
+          secure: false,
+          auth: {
+              user: 'hassananwer12030@gmail.com',
+              pass: '*************', //set password according to your mail
+          },
+      });
+
+      await transporter.sendMail({
+          from: 'hassananwer12030@gmail.com',
+          to: email,
+          subject: subject,
+          text: text,
+      });
+
+      console.log("email sent sucessfully");
+  } catch (error) {
+      console.log(error, "email not sent");
+  }
+};
+
+
+module.exports = {generateToken, isAuth, sendEmail};
