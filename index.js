@@ -8,8 +8,13 @@ const adminPickupRouter = require('./routers/admin/pickupRouter');
 const dotenv = require('dotenv');
 dotenv.config();
 const port = process.env.PORT || 5000;
-
+const {Server, Socket} = require("socket.io");
 const app = express();
+const {
+  userJoin,
+  getUserSocket,
+  userLeave
+} = require("./utils/users.js");
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -37,31 +42,29 @@ app.use('/api/volunteer', volunteerRouter);
 app.use('/api/admin', adminMainRouter);
 app.use('/api/admin/pickup', adminPickupRouter);
 
-<<<<<<< HEAD
 var server = app.listen(port, () => {
-=======
-
-app.listen(port, () => {
->>>>>>> 609d21faf768204e0c7a509ca5ff67391f48e0c9
   console.log(`Server is running on port: ${port}`);
 });
 
 //experimenting with socket -> ignore what is below this for now
 //const httpServer = createServer(app);
-const io = socket(server);
+const io = new Server(server);
 io.on("connection",(socket) => {
   console.log("Made socket connection", socket.id);
+  //socket = userJoin(socket.handshake.query._id,socket);
+  socket.emit("request id");
+  socket.on("send id",async(data)=>{
+    socket = userJoin(data._id,socket);
+  })
   app.set("socketio",socket);
-  //onst socket = req.app.get("socketio");
-//  handle chat
-  socket.on("chat", (data)=>{
-    console.log("helo s");
-    // console.log(socket);
-    // console.log(data);
-    //io.sockets.emit("chat",data);
-    // console.log("hi");
+  // socket.on("chat", (data)=>{
+  //   console.log("helo s");
+  //   // console.log(socket);
+  //   // console.log(data);
+  //   //io.sockets.emit("chat",data);
+  //   // console.log("hi");
     
-  });
+  // });
 
 })
 

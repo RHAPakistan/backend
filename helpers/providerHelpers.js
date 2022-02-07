@@ -40,7 +40,6 @@ module.exports = {
     const user = await Provider.findOne({ email: req.body.email });
     
     if (user) {
-      console.log("WTF?!");
       if (bcrypt.compareSync(req.body.password, user.password)) {
         res.send({
           _id: user._id,
