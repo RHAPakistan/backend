@@ -1,20 +1,27 @@
 const express = require('express');
 const { generateToken, isAuth } = require('../utils.js');
-
+const {
+    userJoin,
+    getUserSocket,
+    userLeave
+  } = require("../utils/users.js");
 
 const providerRouter = express.Router();
 
 var providerHelpers = require("../helpers/providerHelpers.js")
 
-providerRouter.get("/abc",async (req, res)=>{
+providerRouter.post("/abc",async (req, res)=>{
     const socket = req.app.get("socketio");
-    socket.emit("Food picked",{"someone":"ge2t"});
+    curr_socket = getUserSocket(req.body.sock_id);
+    curr_socket.emit("Food picked",{"someone":"ge2t"});
     console.log("hi");
     res.send({abcd:"you go"});
 });
-providerRouter.get("/abc1",async (req, res)=>{
+providerRouter.post("/abc1",async (req, res)=>{
     const socket = req.app.get("socketio");
-    socket.emit("Request Accepted",{"someone":"ge2t"});
+    curr_socket = getUserSocket(req.body.sock_id);
+    console.log(curr_socket);
+    curr_socket.emit("Request Accepted",{"someone":"ge2t"});
     console.log("hi");
     res.send({abcd:"you go"});
 });

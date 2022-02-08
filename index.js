@@ -51,20 +51,12 @@ var server = app.listen(port, () => {
 const io = new Server(server);
 io.on("connection",(socket) => {
   console.log("Made socket connection", socket.id);
-  //socket = userJoin(socket.handshake.query._id,socket);
   socket.emit("request id");
   socket.on("send id",async(data)=>{
     socket = userJoin(data._id,socket);
+    console.log("User joined: ",data._id);
   })
   app.set("socketio",socket);
-  // socket.on("chat", (data)=>{
-  //   console.log("helo s");
-  //   // console.log(socket);
-  //   // console.log(data);
-  //   //io.sockets.emit("chat",data);
-  //   // console.log("hi");
-    
-  // });
 
 })
 
