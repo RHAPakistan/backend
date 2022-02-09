@@ -6,111 +6,17 @@ const Token = require('../../models/token');
 const { generateToken, sendEmail } = require('../../utils.js');
 
 const mainRouter = express.Router();
+var adminHelpers = require("../../helpers/adminHelpers.js");
 
-mainRouter.post(
-    '/register',
-    expressAsyncHandler(async (req, res) => {
-      //console.log(req.body);
-      const user = await Admin.findOne({ email: req.body.email });
-      if(user){
-        res.send({message: "email already exist"})
-      }
-      else{
-        const user = new Admin({
-          fullName: req.body.fullName,
-          email: req.body.email,
-          password: bcrypt.hashSync(req.body.password, 8),
-          contactNumber: req.body.contactNumber,
-          cnic: req.body.cnic,
-          dateOfBirth: req.body.dateOfBirth,
-          address: req.body.address,
-          gender: req.body.gender,
-        });
-        const createdUser = await user.save();
-        res.send({
-          error: 0,
-          _id: createdUser._id,
-          name: createdUser.name,
-          email: createdUser.email,
-          token: generateToken(createdUser),
-        });
-      }
-    })
-  );
+mainRouter.post('/register', adminHelpers.register);
   
-  //Login API
-  mainRouter.post(
-    '/auth',
-    expressAsyncHandler(async (req, res) => {
-      const user = await Admin.findOne({ email: req.body.email });
-      if (user) {
-        if (bcrypt.compareSync(req.body.password, user.password)) {
-          res.send({
-            error: 0,
-            _id: user._id,
-            fullName: user.fullName,
-            email: user.email,
-            token: generateToken(user),
-          });
-        }
-        else{
-          res.status(401).send({error: 1, message: 'Invalid password' });
-        }
-      }
-      else{
-        res.status(401).send({error: 1, message: 'Invalid email' });
-      }
-    })
-  );
+//Login API
+mainRouter.post('/auth', adminHelpers.auth);
   
 //to send otp to person's email
-  mainRouter.post(
-    '/auth/forgot',
-    expressAsyncHandler(async (req, res) =>{
-      const user = await Admin.findOne({ email: req.body.email });
-      if (user) {
-        var val = Math.floor(100000 + Math.random() * 900000);
-        const otp = val.toString();
-        const token = new Token({
-          userId :user._id,
-          otp: otp
-        });
-        await token.save();
-        const text = "You have requested for password reset, kindly note the OTP given below to verify yourself in the app. \n Your OTP is: ";
-        const message = text.concat(otp);
-        await sendEmail(user.email, "Password reset for RHA", message);
-        res.send({error: 0, message:"Password-reset-email has been sent to your Email address"});
-      }
-      else{
-        res.status(401).send({error: 1, message: 'Invalid email' });
-      }
-    })
-  );
+mainRouter.post('/auth/forgot', adminHelpers.auth_forgot);
 
 //to verify that otp against that mail
-  mainRouter.post(
-    '/auth/forgot/verify',
-    expressAsyncHandler(async (req, res)=>{
-      const user = await Admin.findOne({ email: req.body.email });
-      if(user){
-        const token = await Token.findOne({ userId: user._id, otp: req.body.otp});
-        if(token){
-          await Admin.updateOne(
-            {_id: user._id},
-            { password: bcrypt.hashSync(req.body.newPassword, 8)},
-            { upsert: true }
-          );
-          await token.remove();
-          res.send({error: 0, message: 'Your Password has been sucessfully changed.'});
-        }
-        else{
-          res.status(401).send({error: 1, message: 'OTP invalid or expired'});  
-        }
-      }
-      else{
-        res.status(401).send({error: 1, message: 'Something went wrong.' });
-      }
-    })
-  );
+mainRouter.post('/auth/forgot/verify', adminHelpers.auth_forgot_verify);
 
-  module.exports = mainRouter;
+module.exports = mainRouter;

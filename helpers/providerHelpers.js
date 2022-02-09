@@ -101,6 +101,7 @@ module.exports = {
     }else {
       const pickup = new Pickup(req.body)
       const pickupCreated = await pickup.save()
+      console.log(pickupCreated);
       res.status(200).send(
         {
           "pickup": pickup,

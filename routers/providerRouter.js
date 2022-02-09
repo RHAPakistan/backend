@@ -10,6 +10,7 @@ const providerRouter = express.Router();
 
 var providerHelpers = require("../helpers/providerHelpers.js")
 
+//ignore the apis enclosed in ======================
 providerRouter.post("/abc",async (req, res)=>{
     const socket = req.app.get("socketio");
     curr_socket = getUserSocket(req.body.sock_id);
@@ -25,6 +26,8 @@ providerRouter.post("/abc1",async (req, res)=>{
     console.log("hi");
     res.send({abcd:"you go"});
 });
+//=============================================================
+
 //Register API | create
 providerRouter.post('/register', providerHelpers.register);
 

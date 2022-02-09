@@ -51,8 +51,9 @@ var server = app.listen(port, () => {
 const io = new Server(server);
 io.on("connection",(socket) => {
   console.log("Made socket connection", socket.id);
-  socket.emit("request id");
+  socket.emit("request id"); // ask client to send id
   socket.on("send id",async(data)=>{
+    //register the socket with the id as key.
     socket = userJoin(data._id,socket);
     console.log("User joined: ",data._id);
   })
