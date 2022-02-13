@@ -5,6 +5,8 @@ const providerRouter = require('./routers/providerRouter');
 const volunteerRouter = require('./routers/volunteerRouter');
 const adminMainRouter = require('./routers/admin/mainRouter');
 const adminPickupRouter = require('./routers/admin/pickupRouter');
+const adminProviderRouter = require('./routers/admin/adminProviderRouter');
+const dropoffRouter = require("./routers/admin/dropoffRouter");
 const dotenv = require('dotenv');
 dotenv.config();
 const port = process.env.PORT || 5000;
@@ -41,7 +43,8 @@ app.use('/api/provider', providerRouter);
 app.use('/api/volunteer', volunteerRouter);
 app.use('/api/admin', adminMainRouter);
 app.use('/api/admin/pickup', adminPickupRouter);
-
+app.use('/api/admin/provider', adminProviderRouter);
+app.use('/api/admin/dropoff', dropoffRouter);
 var server = app.listen(port, () => {
   console.log(`Server is running on port: ${port}`);
 });

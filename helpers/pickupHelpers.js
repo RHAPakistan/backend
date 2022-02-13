@@ -58,5 +58,14 @@ module.exports = {
             res.status(404).send({ error: 1, message: "No pickup found" });
         }
 
+    }),
+
+    //I don't get what ibtehaj has written about this in the doc-Jawad
+    cancel_pickup: expressAsyncHandler(async(req,res)=>{
+        const deleted = await Pickup.findByIdAndDelete(req.params.id);
+        if(deleted){
+            res.status(200).send({error:0,})
+        }
     })
+    
 }
