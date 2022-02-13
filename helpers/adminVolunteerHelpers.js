@@ -7,24 +7,28 @@ const { generateToken, isAuth } = require('../utils.js');
 
 module.exports = {
 
-    get_pickups: expressAsyncHandler(async (req, res) => {
-        const pickups = await Pickup.find({ status: 1 });
-        if (pickups) {
-            res.send({ error: 0, pickups: pickups });
-        }
-        else {
-            res.status(404).send({ error: 1, message: "No pickup found" });
+
+    get_volunteers: expressAsyncHandler(async(req,res)=>{
+
+        const volunteers = await Volunteer.find({});
+        if(volunteers){
+            res.status(200).send(volunteers);
+        }else{
+            res.status(404).send("not found");
         }
     }),
-    get_pickup_by_id:   expressAsyncHandler(async (req, res) => {
-        const user = await Volunteer.findById(req.params.id);
-        if (user) {
-          res.send({error: 0, user : user});
-        } else {
-          res.status(404).send({error: 1, message: 'User Not Found' });
-        }
-      }),
 
+    get_volunteer: expressAsyncHandler(async (req,res)=>{
+        const user = await Volunteer.findById(req.params.id);
+        if(user){
+            var volunteer = user.toObject();
+            delete volunteer["password"];
+            res.status(200).send(volunteer);
+        }else{
+            res.status(404).send("not found");
+        }
+    }),
+    
     register: expressAsyncHandler(async (req, res) => {
         //console.log(req.body);
         const user = await Volunteer.findOne({ email: req.body.email });
@@ -53,7 +57,6 @@ module.exports = {
           });
         }
       }),
-
     login: expressAsyncHandler(async (req, res) => {
         const user = await Volunteer.findOne({ email: req.body.email });
         //console.log(user._id);
@@ -79,7 +82,7 @@ module.exports = {
           res.status(401).send({error: 1, message: 'Invalid email' });
         }
       }),
-      updateProfie: expressAsyncHandler(async (req, res) => {
+    updateProfie: expressAsyncHandler(async (req, res) => {
         const user = await Volunteer.findById(req.params.id);
         if(user){
           await Volunteer.updateOne({_id: req.params.id},
@@ -110,30 +113,5 @@ module.exports = {
         } else {
           res.status(404).send({error: 1, message: 'User Not Found' });
         }
-      }),
-    updatePickup: expressAsyncHandler(async (req, res) => {
-        const pickup = await Pickup.findByIdAndUpdate(req.params.id, req.body)
-        if (pickup){
-          const updatedPickup = await Pickup.findById(req.params.id);
-          res.send({error: 0, message: "Pickup successfully updated", updatedPickup: updatedPickup});
-        }else{
-          res.status(404).send({error: 1, message: "Pickup not found"});
-        }
-      }),
-    cancelPickup: expressAsyncHandler(async (req, res) => {
-        const pickup = await Pickup.findById(req.params.id)
-        if (pickup){
-          //console.log(pickup.volunteer.toString());
-          if(pickup.volunteer.toString() === req.body.volunteer_id){
-            await Pickup.updateOne({_id: req.params.id}, {$unset: {volunteer: 1 }, status:1, cancelTime: new Date()});
-            const cancelledPickup = await Pickup.findById(req.params.id);
-            res.send({error: 0, message: "Pickup successfully cancelled", cancelledPickup: cancelledPickup});
-          }
-          else{
-            res.status(403).send({error: 1, message: "You don't have authorization to cancel this pickup"});
-          }
-        }else{
-          res.status(404).send({error: 1, message: "Pickup not found"});
-        }
-      })  
+      })
 };
