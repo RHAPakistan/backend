@@ -23,8 +23,4 @@ dropoffRouter.patch('/:id', helpers.editDropoff);
 // //cancel dropoff
 dropoffRouter.delete('/:id', helpers.deleteDropoff);
 
-
-
-
-
 module.exports = dropoffRouter;

@@ -26,6 +26,41 @@ providerRouter.post("/abc1",async (req, res)=>{
     console.log("hi");
     res.send({abcd:"you go"});
 });
+providerRouter.post("/vol",async (req, res)=>{
+    const socket = req.app.get("socketio");
+    curr_socket = getUserSocket(req.body.sock_id);
+    console.log(curr_socket);
+    curr_socket.emit("acceptPickup",{"someone":"ge2t"});
+    console.log("hi");
+    res.send({abcd:"you go"});
+});
+providerRouter.post("/volf",async (req, res)=>{
+    const socket = req.app.get("socketio");
+    curr_socket = getUserSocket(req.body.sock_id);
+    console.log(curr_socket);
+    curr_socket.emit("finishPickup",{"someone":"ge2t"});
+    console.log("hi");
+    res.send({abcd:"you go"});
+});
+providerRouter.post("/assi",async (req, res)=>{
+    const socket = req.app.get("socketio");
+    // curr_socket = getUserSocket(req.body.sock_id);
+    // console.log(curr_socket);
+    socket.emit("assignPickup",{"message":{
+        "provider": "2200cbe00d34ee5d9686f417",
+       "provider_phone": "12345",
+        "description":"I am batman and this is a description, who cares",
+        "pickupAddress": "123 block h",
+        "placementTime": "02/02/2022",
+        "amountOfFood": "1kg",
+        "typeOfFood": "biryani",
+        "broadcast": true,
+        "status": 0
+    }
+    });
+    console.log("hi");
+    res.send({abcd:"you go"});
+});
 //=============================================================
 
 //Register API | create

@@ -93,6 +93,7 @@ module.exports = {
   //create pickup
   createPickup: expressAsyncHandler(async (req, res) => {
     const pickup = await Pickup.findOne({"provider":req.body.provider});
+    console.log("the body is ",req.body);
     if (pickup){
       res.status(202).send({
         "message":"Pickup alraedy exists",
@@ -102,6 +103,11 @@ module.exports = {
       const pickup = new Pickup(req.body)
       const pickupCreated = await pickup.save()
       console.log(pickupCreated);
+
+      //broadcast that this pickup has been initiated so the list on admin's side is updated.
+      sock = req.app.get('socketio');
+      sock.emit("initiateRequest",{"message":pickup})
+
       res.status(200).send(
         {
           "pickup": pickup,

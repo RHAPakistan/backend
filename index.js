@@ -64,6 +64,34 @@ io.on("connection",(socket) => {
   })
   app.set("socketio",socket);
 
+  socket.on("assignPickup", (socket_data)=>{
+    console.log("recieved assignment from admin");
+    console.log(socket_data);
+  })
+
+  socket.on("foodPicked", (socket_data)=>{
+    console.log("food picked of ", socket_data.message);
+  })
+
+  socket.on("foodDelivered", (socket_data)=>{
+    console.log("food delivered of ", socket_data.message);
+  })
+
+  socket.on("acceptPickup", (socket_data)=>{
+    console.log("pickup accepted by ",socket_data.message._id);
+    sock = getUserSocket("6210b0e4418b9ffab8be14d0")
+    sock.emit("acceptPickup",{"message":socket_data});
+  })
+
+  socket.on("finishPickup",(socket_data)=>{
+    sock = getUserSocket("6210b0e4418b9ffab8be14d0");
+    sock.emit("finishPickup", {"message":"hi"});
+  })
+
+  socket.on("initiatePickup", (sock_data)=>{
+    sock = getUserSocket("6210b0e4418b9ffab8be14d0");
+    sock.emit("initiatePickup",{"message":sock_data.message});
+  })
 })
 
 

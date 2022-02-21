@@ -9,6 +9,10 @@ const { generateToken, isAuth } = require('../utils.js');
 const volunteerRouter = express.Router();
 var volunteerHelpers = require("../helpers/volunteerHelpers.js");
 
+
+//get pickups by volunteer id
+volunteerRouter.get('/pickups/vol_id/:id', volunteerHelpers.get_pickups_by_vol_id);
+
 //get Pickups
 volunteerRouter.get('/getPickups', volunteerHelpers.get_pickups);
 
@@ -27,6 +31,7 @@ volunteerRouter.patch('/editProfile/:id', isAuth, volunteerHelpers.updateProfie)
 
 //Delete profile API
 volunteerRouter.delete('/delete/:id', isAuth, volunteerHelpers.delete_volunteer);
+
 
 
 
