@@ -2,7 +2,7 @@ const express = require('express');
 const expressAsyncHandler = require('express-async-handler');
 const bcrypt = require('bcryptjs');
 const Volunteer = require('../models/volunteer');
-const Admin = require('../models/provider');
+const Admin = require('../models/admin');
 const Pickup = require('../models/pickup');
 const { generateToken, isAuth } = require('../utils.js');
 

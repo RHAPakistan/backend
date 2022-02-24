@@ -66,11 +66,19 @@ io.on("connection",(socket) => {
 
   socket.on("assignPickup", (socket_data)=>{
     console.log("recieved assignment from admin");
-    console.log(socket_data);
+    if (socket_data.pickup.broadcast==true){
+      socket.emit("assignPickup",{"message":socket_data.message})
+    }{
+      console.log("unicast it to the particular volunteer");
+    }
+
   })
 
   socket.on("foodPicked", (socket_data)=>{
     console.log("food picked of ", socket_data.message);
+    //send a message to provider
+    sock = getUserSocket(socket_data.message.provider);
+    sock.emit("foodPicked",{"message":socket_data.message})
   })
 
   socket.on("foodDelivered", (socket_data)=>{
@@ -79,19 +87,24 @@ io.on("connection",(socket) => {
 
   socket.on("acceptPickup", (socket_data)=>{
     console.log("pickup accepted by ",socket_data.message._id);
-    sock = getUserSocket("6210b0e4418b9ffab8be14d0")
-    sock.emit("acceptPickup",{"message":socket_data});
+    console.log(socket_data.message);
+    sock = getUserSocket("62178d81aa73e4f46d5ff2c5");
+    sock.emit("acceptPickup",{"message":socket_data.message});
+
+    //send a message to provider
+    sock = getUserSocket(socket_data.message.provider);
+    sock.emit("acceptPickup",{"message":socket_data.message})
   })
 
   socket.on("finishPickup",(socket_data)=>{
-    sock = getUserSocket("6210b0e4418b9ffab8be14d0");
+    sock = getUserSocket("62178d81aa73e4f46d5ff2c5");
     sock.emit("finishPickup", {"message":"hi"});
   })
 
   socket.on("initiatePickup", (sock_data)=>{
-    sock = getUserSocket("6210b0e4418b9ffab8be14d0");
+    sock = getUserSocket("62178d81aa73e4f46d5ff2c5");
     sock.emit("initiatePickup",{"message":sock_data.message});
-  })
+    })
 })
 
 

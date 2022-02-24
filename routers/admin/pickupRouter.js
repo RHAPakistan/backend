@@ -22,5 +22,7 @@ pickupRouter.post('/:id/dropoff/', isAuth, pickupHelpers.add_drop_off);
 //adding a volunteer
 pickupRouter.post('/:id/volunteer/', isAuth, pickupHelpers.add_volunteer);
 
+//update a pickup
+pickupRouter.patch('/:id', isAuth, pickupHelpers.updatePickup);
 
 module.exports = pickupRouter;

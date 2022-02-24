@@ -66,6 +66,17 @@ module.exports = {
         if(deleted){
             res.status(200).send({error:0,})
         }
-    })
+    }),
+
+    updatePickup: expressAsyncHandler(async (req, res) => {
+        //find pickup by id and update
+        const pickup = await Pickup.findByIdAndUpdate(req.params.id, req.body)
+        if (pickup){
+          res.send("The pickup has been updated")
+        }else{
+          res.send("The pickup doesn't dexist")
+        }
+    
+      })
     
 }
