@@ -3,9 +3,11 @@ const expressAsyncHandler = require('express-async-handler');
 const bcrypt = require('bcryptjs');
 const Volunteer = require('../models/volunteer');
 const Pickup = require('../models/pickup');
+const Drive = require('../models/drive');
 const { generateToken, isAuth } = require('../utils.js');
 
 module.exports = {
+
 
   get_pickups: expressAsyncHandler(async (req, res) => {
     const pickups = await Pickup.find({ status: 1 });
@@ -137,6 +139,7 @@ updateProfie: expressAsyncHandler(async (req, res) => {
       res.status(404).send({ error: 1, message: "Pickup not found" });
     }
   }),
+
   cancelPickup: expressAsyncHandler(async (req, res) => {
     const pickup = await Pickup.findById(req.params.id)
     if (pickup) {
@@ -150,7 +153,25 @@ updateProfie: expressAsyncHandler(async (req, res) => {
         res.status(403).send({ error: 1, message: "You don't have authorization to cancel this pickup" });
       }
     } else {
-      res.status(404).send({ error: 1, message: "Pickup not found" });
+      res.status(404).send({ error: 1, message: "Pickup not found or deleted" });
+    }
+  }),
+
+  enrollDrive: expressAsyncHandler(async (req, res)=>{
+    const drive = await Drive.findById(req.params.id);
+    console.log(drive);
+    if(drive){
+      if(drive.currentCount < drive.maxCount){
+        const volunteer = await Volunteer.findById(req.body.volunteer_id);
+        await Drive.findOneAndUpdate({_id: req.params.id}, {$push: {volunteers_SignedUp: volunteer}});
+        res.send({error: 0, message: "Thank you! You are sucessfully enrolled in Drive"})
+      }
+      else{
+        res.status(400).send({ error: 1, message: "Sorry, the drive is full. However, thank you for showing willingness"})
+      }
+    }
+    else{
+      res.status(404).send({ error: 1, message: "Drive not found or deleted"})
     }
   })
 };

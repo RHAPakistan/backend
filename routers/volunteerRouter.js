@@ -58,4 +58,8 @@ volunteerRouter.patch('/updatePickup/:id', isAuth, volunteerHelpers.updatePickup
 
 //cancel pickup
 volunteerRouter.patch('/cancelPickup/:id', isAuth, volunteerHelpers.cancelPickup);
+
+// enroll in a drive
+volunteerRouter.post('/enrollDrive/:id', isAuth, volunteerHelpers.enrollDrive)
+
 module.exports = volunteerRouter;
