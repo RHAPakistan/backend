@@ -20,7 +20,7 @@ module.exports = {
   }),
 
   get_drives: expressAsyncHandler(async (req, res)=>{
-    const drives = await Drive.find({});
+    const drives = await Drive.find({isActive: true, $expr: { $gt: [ "$maxCount" , "$currentCount" ] } });
     if (drives) {
       res.send({ error: 0, drives: drives });
     }
