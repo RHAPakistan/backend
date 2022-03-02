@@ -4,7 +4,7 @@ const bcrypt = require('bcryptjs');
 const Volunteer = require('../models/volunteer');
 const Pickup = require('../models/pickup');
 const Drive = require('../models/drive');
-const { generateToken, isAuth } = require('../utils.js');
+const { generateToken } = require('../utils.js');
 
 module.exports = {
 
@@ -16,6 +16,16 @@ module.exports = {
     }
     else {
       res.status(404).send({ error: 1, message: "No pickup found" });
+    }
+  }),
+
+  get_drives: expressAsyncHandler(async (req, res)=>{
+    const drives = await Drive.find({});
+    if (drives) {
+      res.send({ error: 0, drives: drives });
+    }
+    else {
+      res.status(404).send({ error: 1, message: "No drive found" });
     }
   }),
 
