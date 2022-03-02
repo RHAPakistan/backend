@@ -17,7 +17,7 @@ volunteerRouter.get('/pickups/vol_id/:id', volunteerHelpers.get_pickups_by_vol_i
 volunteerRouter.get('/getPickups', volunteerHelpers.get_pickups);
 
 //get drives
-volunteerRouter.get('/getDrives', volunteerHelpers.get_drives);
+volunteerRouter.get('/getDrives/:volunteer_id', volunteerHelpers.get_drives);
 
 //profile API
 volunteerRouter.get('/:id', isAuth, volunteerHelpers.get_pickup_by_id);
@@ -34,6 +34,8 @@ volunteerRouter.patch('/editProfile/:id', isAuth, volunteerHelpers.updateProfie)
 
 //Delete profile API
 volunteerRouter.delete('/delete/:id', isAuth, volunteerHelpers.delete_volunteer);
+
+
 
 
 //TestAPI
@@ -61,6 +63,6 @@ volunteerRouter.patch('/updatePickup/:id', isAuth, volunteerHelpers.updatePickup
 volunteerRouter.patch('/cancelPickup/:id', isAuth, volunteerHelpers.cancelPickup);
 
 // enroll in a drive
-volunteerRouter.post('/enrollDrive/:id', isAuth, volunteerHelpers.enrollDrive)
+volunteerRouter.patch('/enrollDrive/:id', isAuth, volunteerHelpers.enrollDrive)
 
 module.exports = volunteerRouter;
