@@ -8,7 +8,6 @@ function userJoin(id, socket) {
 
 // Get current user
 function getUserSocket(id) {
-    console.log(users);
     return users[id];
 }
 

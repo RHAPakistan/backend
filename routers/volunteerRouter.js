@@ -4,7 +4,7 @@ const bcrypt = require('bcryptjs');
 const Volunteer = require('../models/volunteer');
 const Provider = require('../models/provider');
 const Pickup = require('../models/pickup');
-const { isAuth } = require('../utils.js');
+const { generateToken, isAuth } = require('../utils.js');
 
 const volunteerRouter = express.Router();
 var volunteerHelpers = require("../helpers/volunteerHelpers.js");
@@ -15,9 +15,6 @@ volunteerRouter.get('/pickups/vol_id/:id', volunteerHelpers.get_pickups_by_vol_i
 
 //get Pickups
 volunteerRouter.get('/getPickups', volunteerHelpers.get_pickups);
-
-//get drives
-volunteerRouter.get('/getDrives/:volunteer_id', volunteerHelpers.get_drives);
 
 //profile API
 volunteerRouter.get('/:id', isAuth, volunteerHelpers.get_pickup_by_id);
@@ -61,8 +58,4 @@ volunteerRouter.patch('/updatePickup/:id', isAuth, volunteerHelpers.updatePickup
 
 //cancel pickup
 volunteerRouter.patch('/cancelPickup/:id', isAuth, volunteerHelpers.cancelPickup);
-
-// enroll in a drive
-volunteerRouter.patch('/enrollDrive/:id', isAuth, volunteerHelpers.enrollDrive)
-
 module.exports = volunteerRouter;
