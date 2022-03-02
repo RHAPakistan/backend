@@ -11,8 +11,11 @@ const adminVolunteerRouter = require("./routers/admin/adminVolunteerRouter.js");
 const dotenv = require('dotenv');
 dotenv.config();
 const port = process.env.PORT || 5000;
-const {Server, Socket} = require("socket.io");
+const { Server, Socket } = require("socket.io");
 const app = express();
+const Pickup = require("./models/pickup");
+const backendHelpers = require("./helpers/backendHelpers");
+
 const {
   userJoin,
   getUserSocket,
@@ -31,13 +34,13 @@ connection.once('open', function() {
 //connecting to mongoDB database
 mongoose.connect(process.env.MONGODB_URL || 'mongodb://localhost:27017/rhaDB', {
 
-    useNewUrlParser: true,
-    //useFindAndModify: false,
-    useUnifiedTopology: true
+  useNewUrlParser: true,
+  //useFindAndModify: false,
+  useUnifiedTopology: true
 
 })
-.then(() => console.log('MongoDB connection established.'))
-.catch((error) => console.error("MongoDB connection failed:", error.message))
+  .then(() => console.log('MongoDB connection established.'))
+  .catch((error) => console.error("MongoDB connection failed:", error.message))
 
 //routes
 app.use('/api/provider', providerRouter);
@@ -54,57 +57,80 @@ var server = app.listen(port, () => {
 //experimenting with socket -> ignore what is below this for now
 //const httpServer = createServer(app);
 const io = new Server(server);
-io.on("connection",(socket) => {
+io.on("connection", (socket) => {
   console.log("Made socket connection", socket.id);
-  socket.emit("request id"); // ask client to send id
-  socket.on("send id",async(data)=>{
+
+  socket.on("send id", async (data) => {
     //register the socket with the id as key.
-    socket = userJoin(data._id,socket);
-    console.log("User joined: ",data._id);
+    socket = userJoin(data._id, socket);
+    console.log("User joined: ", data._id);
   })
-  app.set("socketio",socket);
 
-  socket.on("assignPickup", (socket_data)=>{
+
+  socket.on("assignPickup", async (socket_data) => {
     console.log("recieved assignment from admin");
-    if (socket_data.pickup.broadcast==true){
-      socket.emit("assignPickup",{"message":socket_data.message})
-    }{
-      console.log("unicast it to the particular volunteer");
+    //socket_data.message is the pickup object
+    //we need to add the updated pickup obj to database
+    await Pickup.findByIdAndUpdate(socket_data.message._id, socket_data.message);
+    
+    if (socket_data.message.broadcast == true) {
+      console.log("Emmiting assign pickup event at index:72");
+      socket.broadcast.emit("assignPickup", { "message": socket_data.message})
+    } else {
+      //the pickup object should have a volunteer id
+      sock = getUserSocket(socket_data.message.volunteer);
+      sock.emit("assignPickupSpecific",{"message": socket_data.message}); 
     }
-
   })
 
-  socket.on("foodPicked", (socket_data)=>{
+  app.set("socketio", socket);
+
+  socket.on("foodPicked", async (socket_data) => {
+    //socket.message holds the pickup object.
     console.log("food picked of ", socket_data.message);
+
     //send a message to provider
     sock = getUserSocket(socket_data.message.provider);
-    sock.emit("foodPicked",{"message":socket_data.message})
+    sock.emit("foodPicked", { "message": socket_data.message })
   })
 
-  socket.on("foodDelivered", (socket_data)=>{
+  socket.on("foodDelivered", async (socket_data) => {
     console.log("food delivered of ", socket_data.message);
   })
 
-  socket.on("acceptPickup", (socket_data)=>{
-    console.log("pickup accepted by ",socket_data.message._id);
-    console.log(socket_data.message);
+  socket.on("acceptPickup", async (socket_data) => {
+    console.log("pickup accepted by ", socket_data.message._id);
+
+    //we need to add the updated pickup obj to database
+    await Pickup.findByIdAndUpdate(socket_data.message._id, socket_data.message);
+
+    //notify admin
     sock = getUserSocket("62178d81aa73e4f46d5ff2c5");
-    sock.emit("acceptPickup",{"message":socket_data.message});
+    sock.emit("acceptPickup", { "message": socket_data.message });
 
     //send a message to provider
     sock = getUserSocket(socket_data.message.provider);
-    sock.emit("acceptPickup",{"message":socket_data.message})
+    sock.emit("acceptPickup", { "message": socket_data.message })
   })
 
-  socket.on("finishPickup",(socket_data)=>{
+  socket.on("finishPickup", async (socket_data) => {
     sock = getUserSocket("62178d81aa73e4f46d5ff2c5");
-    sock.emit("finishPickup", {"message":"hi"});
+    sock.emit("finishPickup", { "message": "hi" });
+
+    //we need to add the updated pickup obj to database
+    await Pickup.findByIdAndUpdate(socket_data.message._id, socket_data.message);
   })
 
-  socket.on("initiatePickup", (sock_data)=>{
+  socket.on("initiatePickup", async (sock_data) => {
     sock = getUserSocket("62178d81aa73e4f46d5ff2c5");
-    sock.emit("initiatePickup",{"message":sock_data.message});
-    })
+    sock.emit("initiatePickup", { "message": sock_data.message });
+  })
+
+  socket.on("broadcastPickup", async(sock_data)=>{
+    console.log("Volunteer rejected pickup request");
+    socket.broadcast.emit("assignPickup", { "message": sock_data.message})
+  })
+
 })
 
 
