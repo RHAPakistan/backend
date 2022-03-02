@@ -126,9 +126,20 @@ io.on("connection", (socket) => {
     sock.emit("initiatePickup", { "message": sock_data.message });
   })
 
-  socket.on("broadcastPickup", async(sock_data)=>{
+  socket.on("broadcastPickup", async(socket_data)=>{
     console.log("Volunteer rejected pickup request");
-    socket.broadcast.emit("assignPickup", { "message": sock_data.message})
+
+    await Pickup.findByIdAndUpdate(socket_data.message._id, socket_data.message);
+    if (socket_data.message.broadcast) {
+      console.log("Emmiting assign pickup event at index:72");
+      socket.broadcast.emit("assignPickup", { "message": socket_data.message})
+    } else {
+      //the pickup object should have a volunteer id
+      sock = getUserSocket(socket_data.message.volunteer);
+      sock.emit("assignPickupSpecific",{"message": socket_data.message}); 
+    }
+    socket.broadcast.emit("assignPickup", { "message": socket_data.message})
+    
   })
 
 })
