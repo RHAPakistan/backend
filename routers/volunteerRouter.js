@@ -4,7 +4,7 @@ const bcrypt = require('bcryptjs');
 const Volunteer = require('../models/volunteer');
 const Provider = require('../models/provider');
 const Pickup = require('../models/pickup');
-const { generateToken, isAuth } = require('../utils.js');
+const { isAuth } = require('../utils.js');
 
 const volunteerRouter = express.Router();
 var volunteerHelpers = require("../helpers/volunteerHelpers.js");
@@ -15,6 +15,9 @@ volunteerRouter.get('/pickups/vol_id/:id', volunteerHelpers.get_pickups_by_vol_i
 
 //get Pickups
 volunteerRouter.get('/getPickups', volunteerHelpers.get_pickups);
+
+//get drives
+volunteerRouter.get('/getDrives', volunteerHelpers.get_drives);
 
 //profile API
 volunteerRouter.get('/:id', isAuth, volunteerHelpers.get_pickup_by_id);
@@ -31,8 +34,6 @@ volunteerRouter.patch('/editProfile/:id', isAuth, volunteerHelpers.updateProfie)
 
 //Delete profile API
 volunteerRouter.delete('/delete/:id', isAuth, volunteerHelpers.delete_volunteer);
-
-
 
 
 //TestAPI
