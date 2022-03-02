@@ -12,7 +12,8 @@ const driveSchema = new mongoose.Schema({
     currentCount: {type: Number},
     duration: {type: String},
     description: {type: String},
-    volunteers_SignedUp: [{ type: mongoose.Schema.Types.ObjectId, ref: 'volunteer' }]
+    volunteers_SignedUp: [{ type: mongoose.Schema.Types.ObjectId, ref: 'volunteer' }],
+    isActive: {type: Boolean}
 
 })
 
