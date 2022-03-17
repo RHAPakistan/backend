@@ -6,6 +6,7 @@ const volunteerRouter = require('./routers/volunteerRouter');
 const adminMainRouter = require('./routers/admin/mainRouter');
 const adminPickupRouter = require('./routers/admin/pickupRouter');
 const adminProviderRouter = require('./routers/admin/adminProviderRouter');
+const driveRouter = require('./routers/admin/driveRouter');
 const dropoffRouter = require("./routers/admin/dropoffRouter");
 const adminVolunteerRouter = require("./routers/admin/adminVolunteerRouter.js");
 const dotenv = require('dotenv');
@@ -34,7 +35,7 @@ connection.once('open', function() {
 })*/
 
 //connecting to mongoDB database
-mongoose.connect(process.env.MONGODB_URL || 'mongodb://localhost:27017/rhaDB', {
+mongoose.connect(process.env.MONGODB_URL || 'mongodb://localhost:27017/RHA_DB', {
 
   useNewUrlParser: true,
   //useFindAndModify: false,
@@ -51,7 +52,9 @@ app.use('/api/admin', adminMainRouter);
 app.use('/api/admin/pickup', adminPickupRouter);
 app.use('/api/admin/provider', adminProviderRouter);
 app.use('/api/admin/dropoff', dropoffRouter);
+app.use('/api/admin/drive', driveRouter);
 app.use('/api/admin/volunteer', adminVolunteerRouter);
+
 var server = app.listen(port, () => {
   console.log(`Server is running on port: ${port}`);
 });
