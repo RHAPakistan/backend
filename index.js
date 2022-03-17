@@ -14,6 +14,8 @@ const port = process.env.PORT || 5000;
 const { Server, Socket } = require("socket.io");
 const app = express();
 const Pickup = require("./models/pickup");
+const Provider = require("./models/provider");
+const Volunteer = require("./models/volunteer");
 const backendHelpers = require("./helpers/backendHelpers");
 
 const {
@@ -101,6 +103,9 @@ io.on("connection", (socket) => {
   socket.on("acceptPickup", async (socket_data) => {
     console.log("pickup accepted by ", socket_data.message._id);
 
+    //update volunteer's ongoing_pickup status
+    await Volunteer.findByIdAndUpdate(socket_data.message.volunteer, {"ongoing_pickup":true});
+    
     //we need to add the updated pickup obj to database
     await Pickup.findByIdAndUpdate(socket_data.message._id, socket_data.message);
 
@@ -114,14 +119,22 @@ io.on("connection", (socket) => {
   })
 
   socket.on("finishPickup", async (socket_data) => {
+
+    //change volunteer's and provider's ongoing_pickup status to true
+    await Provider.findByIdAndUpdate(socket_data.message.provider, {"ongoing_pickup":false});
+    await Volunteer.findByIdAndUpdate(socket_data.message.volunteer, {"ongoing_pickup":false});
+    //we need to add the updated pickup obj to database
+    await Pickup.findByIdAndUpdate(socket_data.message._id, socket_data.message);
+   
     sock = getUserSocket("62178d81aa73e4f46d5ff2c5");
     sock.emit("finishPickup", { "message": "hi" });
 
-    //we need to add the updated pickup obj to database
-    await Pickup.findByIdAndUpdate(socket_data.message._id, socket_data.message);
   })
 
   socket.on("initiatePickup", async (sock_data) => {
+    //provider sends this
+    //ongoing_pickup to true
+    await Provider.findByIdAndUpdate(sock_data.message.provider, {"ongoing_pickup":true});      
     sock = getUserSocket("62178d81aa73e4f46d5ff2c5");
     sock.emit("initiatePickup", { "message": sock_data.message });
   })

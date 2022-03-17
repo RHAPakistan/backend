@@ -38,6 +38,7 @@ module.exports = {
 
     auth: expressAsyncHandler(async (req, res) => {
         const user = await Admin.findOne({ email: req.body.email });
+        console.log(user);
         if (user) {
             if (bcrypt.compareSync(req.body.password, user.password)) {
                 res.send({
@@ -46,6 +47,7 @@ module.exports = {
                     fullName: user.fullName,
                     email: user.email,
                     token: generateToken(user),
+                    contactNumber: user.contactNumber
                 });
             }
             else {

@@ -17,6 +17,15 @@ module.exports = {
     }
   }),
 
+  get_volunteer: expressAsyncHandler(async (req,res)=>{
+    const volunteer = await Pickup.findById(req.params.id);
+    if(volunteer){
+      res.send({volunteer: volunteer})
+    }else{
+      res.status(404).send({error:1, message:"not found"});
+    }
+  }),
+
   get_pickups_by_vol_id: expressAsyncHandler(async (req,res) => {
     const pickups = await Pickup.find({$or: [{volunteer: req.params.id, status:1},{broadcast: true, status: 1}]});
     if (pickups) {
@@ -85,6 +94,7 @@ module.exports = {
           email: user.email,
           activePickups: activePickups,
           pickupHistory: pickupHistory,
+          contactNumber: user.contactNumber,
           token: generateToken(user),
         });
       }
