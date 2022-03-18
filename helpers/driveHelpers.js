@@ -4,7 +4,7 @@ const Drive = require("../models/drive");
 
 module.exports = {
     getDrives: expressAsyncHandler(async(req,res)=>{
-        const drives = await Drive.find({});
+        const drives = await Drive.find({status: req.params.status});
         if(drives){
             res.status(200).send(drives)
         }else{

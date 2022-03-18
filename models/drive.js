@@ -9,11 +9,15 @@ const driveSchema = new mongoose.Schema({
     driveLocation: {type: String, required: true},
     volunteerCategory: {type: String, enum: ['male', 'female', 'all']},
     maxCount: {type: Number, required: true},
-    currentCount: {type: Number},
+    currentCount: {type: Number, required: true, default: 0},
     duration: {type: String},
     description: {type: String},
     volunteers_SignedUp: [{ type: mongoose.Schema.Types.ObjectId, ref: 'volunteer' }],
-    isActive: {type: Boolean}
+    status: {type: Number, enum: [-1, 0, 1, 2], required: true, default: 1}, //0 for inactive, 1 for active, 2 for completed and -1 for cancelled
+    creation_time: {
+        type: Date,
+        default: Date.now
+    }
 
 })
 
