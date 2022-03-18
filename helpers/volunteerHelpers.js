@@ -35,7 +35,7 @@ module.exports = {
     if(drive){
       if(drive.currentCount < drive.maxCount){
         const volunteer = await Volunteer.findById(req.body.volunteer_id);
-        const checkEnrolled = await Drive.findOne({volunteers_SignedUp:volunteer});
+        const checkEnrolled = await Drive.findOne({_id:req.params.id, volunteers_SignedUp:volunteer});
         console.log("Check: ",checkEnrolled);
         if(checkEnrolled){
           res.status(400).send({ error: 1, message: "Sorry, You are already enrolled in this drive, Kindly refresh"});
