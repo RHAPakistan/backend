@@ -28,6 +28,7 @@ module.exports = {
         _id: createdUser._id,
         name: createdUser.name,
         email: createdUser.email,
+        contactNumber: user.contactNumber,
         token: generateToken(createdUser),
       });
     }
@@ -45,6 +46,7 @@ module.exports = {
           _id: user._id,
           fullName: user.fullName,
           email: user.email,
+          contactNumber: user.contactNumber,
           token: generateToken(user),
         });
       }else{
