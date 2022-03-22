@@ -6,6 +6,7 @@ const volunteerRouter = require('./routers/volunteerRouter');
 const adminMainRouter = require('./routers/admin/mainRouter');
 const adminPickupRouter = require('./routers/admin/pickupRouter');
 const adminProviderRouter = require('./routers/admin/adminProviderRouter');
+const driveRouter = require('./routers/admin/driveRouter');
 const dropoffRouter = require("./routers/admin/dropoffRouter");
 const adminVolunteerRouter = require("./routers/admin/adminVolunteerRouter.js");
 const dotenv = require('dotenv');
@@ -14,6 +15,8 @@ const port = process.env.PORT || 5000;
 const { Server, Socket } = require("socket.io");
 const app = express();
 const Pickup = require("./models/pickup");
+const Provider = require("./models/provider");
+const Volunteer = require("./models/volunteer");
 const backendHelpers = require("./helpers/backendHelpers");
 
 const {
@@ -32,7 +35,7 @@ connection.once('open', function() {
 })*/
 
 //connecting to mongoDB database
-mongoose.connect(process.env.MONGODB_URL || 'mongodb://localhost:27017/rhaDB', {
+mongoose.connect(process.env.MONGODB_URL || `mongodb://localhost:27017/rhaDB`, {
 
   useNewUrlParser: true,
   //useFindAndModify: false,
@@ -49,7 +52,9 @@ app.use('/api/admin', adminMainRouter);
 app.use('/api/admin/pickup', adminPickupRouter);
 app.use('/api/admin/provider', adminProviderRouter);
 app.use('/api/admin/dropoff', dropoffRouter);
+app.use('/api/admin/drive', driveRouter);
 app.use('/api/admin/volunteer', adminVolunteerRouter);
+
 var server = app.listen(port, () => {
   console.log(`Server is running on port: ${port}`);
 });
@@ -101,6 +106,9 @@ io.on("connection", (socket) => {
   socket.on("acceptPickup", async (socket_data) => {
     console.log("pickup accepted by ", socket_data.message._id);
 
+    //update volunteer's ongoing_pickup status
+    await Volunteer.findByIdAndUpdate(socket_data.message.volunteer, {"ongoing_pickup":true});
+    
     //we need to add the updated pickup obj to database
     await Pickup.findByIdAndUpdate(socket_data.message._id, socket_data.message);
 
@@ -114,14 +122,22 @@ io.on("connection", (socket) => {
   })
 
   socket.on("finishPickup", async (socket_data) => {
+
+    //change volunteer's and provider's ongoing_pickup status to true
+    await Provider.findByIdAndUpdate(socket_data.message.provider, {"ongoing_pickup":false});
+    await Volunteer.findByIdAndUpdate(socket_data.message.volunteer, {"ongoing_pickup":false});
+    //we need to add the updated pickup obj to database
+    await Pickup.findByIdAndUpdate(socket_data.message._id, socket_data.message);
+   
     sock = getUserSocket("62178d81aa73e4f46d5ff2c5");
     sock.emit("finishPickup", { "message": "hi" });
 
-    //we need to add the updated pickup obj to database
-    await Pickup.findByIdAndUpdate(socket_data.message._id, socket_data.message);
   })
 
   socket.on("initiatePickup", async (sock_data) => {
+    //provider sends this
+    //ongoing_pickup to true
+    await Provider.findByIdAndUpdate(sock_data.message.provider, {"ongoing_pickup":true});      
     sock = getUserSocket("62178d81aa73e4f46d5ff2c5");
     sock.emit("initiatePickup", { "message": sock_data.message });
   })

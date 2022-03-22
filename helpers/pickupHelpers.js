@@ -9,7 +9,8 @@ const { generateToken, isAuth } = require('../utils.js');
 module.exports = {
 
     get_pickups: expressAsyncHandler(async (req, res) => {
-        const pickups = await Pickup.find();
+        //if the params have status code
+        const pickups = await Pickup.find(req.query.status?{"status":req.query.status}:{});
         if (pickups) {
             res.send({ error: 0, pickups: pickups });
         }
@@ -17,6 +18,7 @@ module.exports = {
             res.status(404).send({ error: 1, message: "No pickup found" });
         }
     }),
+
     get_details: expressAsyncHandler(async (req, res) => {
         const pickup = await Pickup.findById(req.params.id);
         if (pickup) {

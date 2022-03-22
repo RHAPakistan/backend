@@ -10,7 +10,11 @@ module.exports = {
 
     get_volunteers: expressAsyncHandler(async(req,res)=>{
 
-        const volunteers = await Volunteer.find({});
+        var filter = {}
+        for(const key in req.query){
+          filter[key] = req.query[key];
+        }
+        const volunteers = await Volunteer.find(filter);
         if(volunteers){
             res.status(200).send(volunteers);
         }else{
