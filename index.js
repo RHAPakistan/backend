@@ -35,7 +35,7 @@ connection.once('open', function() {
 })*/
 
 //connecting to mongoDB database
-mongoose.connect(process.env.MONGODB_URL || `mongodb://localhost:27017/rhaDB`, {
+mongoose.connect(process.env.MONGODB_URL || `mongodb://localhost:27017/${process.env.DB_NAME}`, {
 
   useNewUrlParser: true,
   //useFindAndModify: false,
@@ -104,8 +104,8 @@ io.on("connection", (socket) => {
   })
 
   socket.on("acceptPickup", async (socket_data) => {
-    console.log("pickup accepted by ", socket_data.message._id);
 
+    console.log("pickup acceped => ", socket_data);
     //update volunteer's ongoing_pickup status
     await Volunteer.findByIdAndUpdate(socket_data.message.volunteer, {"ongoing_pickup":true});
     
@@ -114,7 +114,9 @@ io.on("connection", (socket) => {
 
     //notify admin
     sock = getUserSocket("62178d81aa73e4f46d5ff2c5");
-    sock.emit("acceptPickup", { "message": socket_data.message });
+    const provider = await Provider.findById(socket_data.message.provider);
+    const volunteer = await Volunteer.findById(socket_data.message.volunteer);
+    sock.emit("acceptPickup", { "message": socket_data.message,"provider":provider,"volunteer":volunteer});
 
     //send a message to provider
     sock = getUserSocket(socket_data.message.provider);
@@ -130,7 +132,9 @@ io.on("connection", (socket) => {
     await Pickup.findByIdAndUpdate(socket_data.message._id, socket_data.message);
    
     sock = getUserSocket("62178d81aa73e4f46d5ff2c5");
-    sock.emit("finishPickup", { "message": "hi" });
+    const provider = await Provider.findById(socket_data.message.provider);
+    const volunteer = await Volunteer.findById(socket_data.message.volunteer);
+    sock.emit("finishPickup", { "message": socket_data.message,"provider":provider,"volunteer":volunteer});
 
   })
 
