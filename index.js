@@ -143,7 +143,7 @@ io.on("connection", (socket) => {
     //ongoing_pickup to true
     await Provider.findByIdAndUpdate(sock_data.message.provider, {"ongoing_pickup":true});      
     sock = getUserSocket("62178d81aa73e4f46d5ff2c5");
-    sock.emit("initiatePickup", { "message": sock_data.message });
+    sock.emit("initiatePickupListen", { "message": sock_data.message });
   })
 
   socket.on("broadcastPickup", async(socket_data)=>{
@@ -161,6 +161,56 @@ io.on("connection", (socket) => {
     socket.broadcast.emit("assignPickup", { "message": socket_data.message})
     
   })
+
+  socket.on("cancelPickup", async(socket_data)=>{
+  
+    if(socket_data.status==0){
+    if(socket_data.role=="provider"){
+    //The pickup has been cancelled by provider
+    console.log("The pickup has been cancelled ",socket_data.pickup);
+    await Pickup.findByIdAndDelete(socket_data.pickup._id);
+
+    //notify the admin
+    sock = getUserSocket("62178d81aa73e4f46d5ff2c5");
+    sock.emit("informCancelPickup", {pickup:socket_data.pickup, status:socket_data.status});
+    }
+    }
+    else if(socket_data.status==1){
+      
+      if(socket_data.role=="provider"){
+        //The pickup has been cancelled by provider
+        console.log("The pickup has been cancelled ",socket_data.pickup);
+        await Pickup.findByIdAndDelete(socket_data.pickup._id);
+
+        
+        //notify the volunteer
+        sock = getUserSocket(socket_data.pickup.volunteer);
+        sock.emit("informCancelPickup", {pickup:socket_data.pickup,status:socket_data.status, role:socket_data.role});
+
+        //notify the admin
+        sock = getUserSocket("62178d81aa73e4f46d5ff2c5");
+        sock.emit("informCancelPickup", {pickup:socket_data.pickup, status:socket_data.status, role:socket_data.role});        
+
+
+      }
+    }
+
+    else if(socket_data.status==2){
+      if(socket_data.role=="volunteer"){
+        await Pickup.findByIdAndUpdate(socket_data.pickup._id, socket_data.pickup);
+        socket.broadcast.emit("assignPickup", { "message": socket_data.pickup})
+
+        //inform admin
+        sock= getUserSocket("62178d81aa73e4f46d5ff2c5");
+        sock.emit("informCancelPickup",{pickup:socket_data.pickup, status:socket_data.status, role:socket_data.role});
+
+        //inform provider
+        sock = getUserSockeT(socket_data.pickup.provider);
+        sock.emit("informCancelPickup", {pickup:socket_data.pickup, status:socket_data.status, role:socket_data.role});
+      }
+    }
+  })
+
 
 })
 
