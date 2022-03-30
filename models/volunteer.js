@@ -9,7 +9,8 @@ const volunteerSchema = new mongoose.Schema({
     dateOfBirth: { type: Date, required: true },
     address: { type: String, required: true },
     gender: { type: String, required: true },
-    role: { type: String, enum: ['guest', 'registered'], required: true }
+    role: { type: String, enum: ['guest', 'registered'], required: true },
+    ongoing_pickup: {type:Boolean, required:true}
 })
 
 module.exports = mongoose.model('Volunteer',volunteerSchema);

@@ -8,7 +8,8 @@ const providerSchema = new mongoose.Schema({
     cnic: { type: String, required: true },
     dateOfBirth: { type: Date, required: true },
     address: { type: String, required: true },
-    gender: { type: String, required: true }
+    gender: { type: String, required: true },
+    ongoing_pickup: {type: Boolean, required: true}
 })
 
 module.exports = mongoose.model("Provider", providerSchema);

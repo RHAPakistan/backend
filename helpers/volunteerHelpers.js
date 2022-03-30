@@ -5,9 +5,7 @@ const Volunteer = require('../models/volunteer');
 const Pickup = require('../models/pickup');
 const Drive = require('../models/drive');
 const { generateToken } = require('../utils.js');
-
 module.exports = {
-
 
   get_pickups: expressAsyncHandler(async (req, res) => {
     const pickups = await Pickup.find({ status: 1 });
@@ -19,8 +17,18 @@ module.exports = {
     }
   }),
 
+  get_volunteer: expressAsyncHandler(async (req,res)=>{
+    const volunteer = await Pickup.findById(req.params.id);
+    if(volunteer){
+      res.send({volunteer: volunteer})
+    }else{
+      res.status(404).send({error:1, message:"not found"});
+    }
+  }),
+  //$expr: { $gt: [ "$maxCount" , "$currentCount" ] },isActive: true,
   get_drives: expressAsyncHandler(async (req, res)=>{
     const drives = await Drive.find({status: 1, $expr: { $gt: [ "$maxCount" , "$currentCount" ] }, volunteers_SignedUp: { $ne: req.params.volunteer_id }  });
+    console.log("Drives: ",drives);
     if (drives) {
       res.send({ error: 0, drives: drives });
     }
@@ -55,6 +63,7 @@ module.exports = {
     }
   }),
 
+
   get_pickups_by_vol_id: expressAsyncHandler(async (req,res) => {
     const pickups = await Pickup.find({$or: [{volunteer: req.params.id, status:1},{broadcast: true, status: 1}]});
     if (pickups) {
@@ -75,7 +84,6 @@ module.exports = {
       res.status(404).send({ error: 1, message: 'pickup Not Found' });
     }
   }),
-
   register: expressAsyncHandler(async (req, res) => {
     //console.log(req.body);
     const user = await Volunteer.findOne({ email: req.body.email });
@@ -122,6 +130,7 @@ module.exports = {
           email: user.email,
           activePickups: activePickups,
           pickupHistory: pickupHistory,
+          contactNumber: user.contactNumber,
           token: generateToken(user),
         });
       }
@@ -174,7 +183,6 @@ updateProfie: expressAsyncHandler(async (req, res) => {
       res.status(404).send({ error: 1, message: "Pickup not found" });
     }
   }),
-
   cancelPickup: expressAsyncHandler(async (req, res) => {
     const pickup = await Pickup.findById(req.params.id)
     if (pickup) {
@@ -188,7 +196,7 @@ updateProfie: expressAsyncHandler(async (req, res) => {
         res.status(403).send({ error: 1, message: "You don't have authorization to cancel this pickup" });
       }
     } else {
-      res.status(404).send({ error: 1, message: "Pickup not found or deleted" });
+      res.status(404).send({ error: 1, message: "Pickup not found" });
     }
   })
 };

@@ -28,7 +28,6 @@ module.exports = {
         _id: createdUser._id,
         name: createdUser.name,
         email: createdUser.email,
-        contactNumber: user.contactNumber,
         token: generateToken(createdUser),
       });
     }
@@ -94,7 +93,7 @@ module.exports = {
 
   //create pickup
   createPickup: expressAsyncHandler(async (req, res) => {
-    const pickup = await Pickup.findOne({"provider":req.body.provider});
+    const pickup = await Pickup.findOne({"provider":req.body.provider, "status":{$lt:3}});
     console.log("the body is ",req.body);
     if (pickup){
       res.status(202).send({
