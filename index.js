@@ -168,7 +168,9 @@ io.on("connection", (socket) => {
     if(socket_data.role=="provider"){
     //The pickup has been cancelled by provider
     console.log("The pickup has been cancelled ",socket_data.pickup);
-    await Pickup.findByIdAndDelete(socket_data.pickup._id);
+    var pickup = socket_data.pickup;
+    pickup.status=4;
+    await Pickup.findByIdAndUpdate(pickup._id, pickup);
 
     //notify the admin
     sock = getUserSocket("62178d81aa73e4f46d5ff2c5");
@@ -180,16 +182,19 @@ io.on("connection", (socket) => {
       if(socket_data.role=="provider"){
         //The pickup has been cancelled by provider
         console.log("The pickup has been cancelled ",socket_data.pickup);
-        await Pickup.findByIdAndDelete(socket_data.pickup._id);
-
+        var pickup = socket_data.pickup;
+        pickup.status=4;
+        await Pickup.findByIdAndUpdate(pickup._id, pickup);
         
         //notify the volunteer
+        if(pickup.volunteer){
         sock = getUserSocket(socket_data.pickup.volunteer);
-        sock.emit("informCancelPickup", {pickup:socket_data.pickup,status:socket_data.status, role:socket_data.role});
-
+        sock.emit("informCancelPickup", {pickup:pickup,status:socket_data.status, role:socket_data.role});
+        }
+        console.log("no volunteer assigned");
         //notify the admin
         sock = getUserSocket("62178d81aa73e4f46d5ff2c5");
-        sock.emit("informCancelPickup", {pickup:socket_data.pickup, status:socket_data.status, role:socket_data.role});        
+        sock.emit("informCancelPickup", {pickup:pickup, status:socket_data.status, role:socket_data.role});        
 
 
       }
@@ -197,16 +202,20 @@ io.on("connection", (socket) => {
 
     else if(socket_data.status==2){
       if(socket_data.role=="volunteer"){
-        await Pickup.findByIdAndUpdate(socket_data.pickup._id, socket_data.pickup);
-        socket.broadcast.emit("assignPickup", { "message": socket_data.pickup})
+        var pickup = socket_data.pickup;
+        pickup.broadcast=true;
+        pickup.status=1;
+        delete pickup.volunteer;
+        await Pickup.findByIdAndUpdate(pickup._id, pickup);
+        socket.broadcast.emit("assignPickup", { "message": pickup})
 
         //inform admin
         sock= getUserSocket("62178d81aa73e4f46d5ff2c5");
-        sock.emit("informCancelPickup",{pickup:socket_data.pickup, status:socket_data.status, role:socket_data.role});
+        sock.emit("informCancelPickup",{pickup:pickup, status: socket_data.status, role:socket_data.role});
 
         //inform provider
-        sock = getUserSockeT(socket_data.pickup.provider);
-        sock.emit("informCancelPickup", {pickup:socket_data.pickup, status:socket_data.status, role:socket_data.role});
+        sock = getUserSocket(pickup.provider);
+        sock.emit("informCancelPickup", {pickup:pickup, status: socket_data.status, role:role});
       }
     }
   })
