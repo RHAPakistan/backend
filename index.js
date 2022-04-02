@@ -97,6 +97,10 @@ io.on("connection", (socket) => {
     //send a message to provider
     sock = getUserSocket(socket_data.message.provider);
     sock.emit("foodPicked", { "message": socket_data.message })
+
+    //send a message to provider
+    sock = getUserSocket(socket_data.message.admin);
+    sock.emit("foodPicked", { "message": socket_data.message })
   })
 
   socket.on("foodDelivered", async (socket_data) => {
@@ -174,8 +178,22 @@ io.on("connection", (socket) => {
 
     //notify the admin
     sock = getUserSocket("62178d81aa73e4f46d5ff2c5");
-    sock.emit("informCancelPickup", {pickup:socket_data.pickup, status:socket_data.status, role: socket_data.role});
+    sock.emit("informCancelPickup", {pickup:pickup, status:socket_data.status, role: socket_data.role});
     }
+
+    //the admin cancels pickup
+    if(socket_data.role=="admin"){
+      console.log("The pickup has been cancelled by admin");
+      var pickup = socket_data.pickup;
+      pickup.status=4;
+      await Pickup.findByIdAndUpdate(pickup._id,pickup);
+
+      //notify provider
+      sock = getUserSocket(socket_data.pickup.provider);
+      sock.emit("informCancelPickup", {pickup: pickup, status:socket_data.status, role: socket_data.role})
+    }
+
+
     }
     else if(socket_data.status==1){
       
@@ -198,6 +216,27 @@ io.on("connection", (socket) => {
 
 
       }
+
+    //the admin cancels pickup
+    if(socket_data.role=="admin"){
+      console.log("The pickup has been cancelled by admin at status1");
+      var pickup = socket_data.pickup;
+      pickup.status=4;
+      await Pickup.findByIdAndUpdate(pickup._id,pickup);
+
+      //notify provider
+      sock = getUserSocket(socket_data.pickup.provider);
+      sock.emit("informCancelPickup", {pickup: pickup, status:socket_data.status, role: socket_data.role})
+
+      //notify volunteer
+      if(socket_data.pickup.volunteer){
+      sock = getUserSocket(socket_data.pickup.volunteer);
+      sock.emit("informCancelPickup", {pickup:pickup, status:socket_data.status, role: socket_data.role})
+      }
+      else{
+        socket.broadcast.emit("informCancelVolunteer",{pickup:pickup, status:socket_data.status, role: socket_data.role});
+      }
+    }
     }
 
     else if(socket_data.status==2){
@@ -217,6 +256,22 @@ io.on("connection", (socket) => {
         sock = getUserSocket(pickup.provider);
         sock.emit("informCancelPickup", {pickup:pickup, status: socket_data.status, role: socket_data.role});
       }
+
+    //the admin cancels pickup
+    if(socket_data.role=="admin"){
+      console.log("The pickup has been cancelled by admin", socket_data);
+      var pickup = socket_data.pickup;
+      pickup.status=4;
+      await Pickup.findByIdAndUpdate(pickup._id,pickup);
+
+      //notify provider
+      sock = getUserSocket(socket_data.pickup.provider);
+      sock.emit("informCancelPickup", {pickup: pickup, status:socket_data.status, role: socket_data.role})
+
+      //notify volunteer
+      sock = getUserSocket(socket_data.pickup.volunteer);
+      sock.emit("informCancelPickup", {pickup:pickup, status:socket_data.status, role: socket_data.role})
+    }
     }
   })
 
