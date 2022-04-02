@@ -92,15 +92,17 @@ io.on("connection", (socket) => {
 
   socket.on("foodPicked", async (socket_data) => {
     //socket.message holds the pickup object.
+    var pickup = socket_data.message;
     console.log("food picked of ", socket_data.message);
-
+    pickup.status = 3;
+    await Pickup.findByIdAndUpdate(socket_data.message._id, pickup);
     //send a message to provider
     sock = getUserSocket(socket_data.message.provider);
-    sock.emit("foodPicked", { "message": socket_data.message })
+    sock.emit("foodPicked", { "message": pickup});
 
     //send a message to provider
     sock = getUserSocket(socket_data.message.admin);
-    sock.emit("foodPicked", { "message": socket_data.message })
+    sock.emit("foodPicked", { "message": pickup})
   })
 
   socket.on("foodDelivered", async (socket_data) => {
@@ -133,12 +135,14 @@ io.on("connection", (socket) => {
     await Provider.findByIdAndUpdate(socket_data.message.provider, {"ongoing_pickup":false});
     await Volunteer.findByIdAndUpdate(socket_data.message.volunteer, {"ongoing_pickup":false});
     //we need to add the updated pickup obj to database
-    await Pickup.findByIdAndUpdate(socket_data.message._id, socket_data.message);
+    var pickup = socket_data.message;
+    pickup.status = 4;
+    await Pickup.findByIdAndUpdate(socket_data.message._id, pickup);
    
     sock = getUserSocket("62178d81aa73e4f46d5ff2c5");
     const provider = await Provider.findById(socket_data.message.provider);
     const volunteer = await Volunteer.findById(socket_data.message.volunteer);
-    sock.emit("finishPickup", { "message": socket_data.message,"provider":provider,"volunteer":volunteer});
+    sock.emit("finishPickup", { "message": pickup,"provider":provider,"volunteer":volunteer});
 
   })
 
@@ -173,7 +177,7 @@ io.on("connection", (socket) => {
     //The pickup has been cancelled by provider
     console.log("The pickup has been cancelled ",socket_data.pickup);
     var pickup = socket_data.pickup;
-    pickup.status=4;
+    pickup.status=5;
     await Pickup.findByIdAndUpdate(pickup._id, pickup);
 
     //notify the admin
@@ -185,7 +189,7 @@ io.on("connection", (socket) => {
     if(socket_data.role=="admin"){
       console.log("The pickup has been cancelled by admin");
       var pickup = socket_data.pickup;
-      pickup.status=4;
+      pickup.status=5;
       await Pickup.findByIdAndUpdate(pickup._id,pickup);
 
       //notify provider
@@ -201,7 +205,7 @@ io.on("connection", (socket) => {
         //The pickup has been cancelled by provider
         console.log("The pickup has been cancelled ",socket_data.pickup);
         var pickup = socket_data.pickup;
-        pickup.status=4;
+        pickup.status=5;
         await Pickup.findByIdAndUpdate(pickup._id, pickup);
         
         //notify the volunteer
@@ -221,13 +225,13 @@ io.on("connection", (socket) => {
     if(socket_data.role=="admin"){
       console.log("The pickup has been cancelled by admin at status1");
       var pickup = socket_data.pickup;
-      pickup.status=4;
+      pickup.status=5;
       await Pickup.findByIdAndUpdate(pickup._id,pickup);
 
       //notify provider
       sock = getUserSocket(socket_data.pickup.provider);
       sock.emit("informCancelPickup", {pickup: pickup, status:socket_data.status, role: socket_data.role})
-
+      console.log("informed provider");
       //notify volunteer
       if(socket_data.pickup.volunteer){
       sock = getUserSocket(socket_data.pickup.volunteer);
@@ -261,7 +265,7 @@ io.on("connection", (socket) => {
     if(socket_data.role=="admin"){
       console.log("The pickup has been cancelled by admin", socket_data);
       var pickup = socket_data.pickup;
-      pickup.status=4;
+      pickup.status=5;
       await Pickup.findByIdAndUpdate(pickup._id,pickup);
 
       //notify provider
