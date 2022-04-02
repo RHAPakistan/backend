@@ -16,7 +16,7 @@ const pickupSchema = new mongoose.Schema({
     amountOfFood: { type: String },
     typeOfFood: { type: String },
     broadcast: {type: Boolean},
-    status: {type: Number, enum: [0,1,2,3], required: true}
+    status: {type: Number, enum: [0,1,2,3,4,5], required: true}
 })
 
 module.exports = mongoose.model('Pickup', pickupSchema);

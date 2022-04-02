@@ -1,20 +1,20 @@
 const express = require('express');
 const helpers = require('../../helpers/driveHelpers.js');
 const driveRouter = express.Router();
-
+const { isAuth } = require('../../utils.js');
 // get drives
-driveRouter.get('/', helpers.getDrives);
+driveRouter.get('/:status', helpers.getDrives);
 
 // //get drive
 driveRouter.get('/:id',helpers.getDrive);
 
 // //create drive
-driveRouter.post('/',helpers.createDrive);
+driveRouter.post('/', isAuth, helpers.createDrive);
 
 // //edit drive
-driveRouter.patch('/:id', helpers.editDrive);
+driveRouter.patch('/:id', isAuth, helpers.editDrive);
 
 // //cancel drive
-driveRouter.delete('/:id', helpers.deleteDrive);
+driveRouter.delete('/:id', isAuth, helpers.deleteDrive);
 
 module.exports = driveRouter;

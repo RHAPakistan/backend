@@ -25,11 +25,12 @@ module.exports = {
       res.status(404).send({error:1, message:"not found"});
     }
   }),
-  //$expr: { $gt: [ "$maxCount" , "$currentCount" ] },isActive: true,
+  
   get_drives: expressAsyncHandler(async (req, res)=>{
     const drives = await Drive.find({status: 1, $expr: { $gt: [ "$maxCount" , "$currentCount" ] }, volunteers_SignedUp: { $ne: req.params.volunteer_id }  });
     console.log("Drives: ",drives);
     if (drives) {
+      console.log("Drives",drives);
       res.send({ error: 0, drives: drives });
     }
     else {
