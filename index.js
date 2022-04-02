@@ -174,7 +174,7 @@ io.on("connection", (socket) => {
 
     //notify the admin
     sock = getUserSocket("62178d81aa73e4f46d5ff2c5");
-    sock.emit("informCancelPickup", {pickup:socket_data.pickup, status:socket_data.status});
+    sock.emit("informCancelPickup", {pickup:socket_data.pickup, status:socket_data.status, role: socket_data.role});
     }
     }
     else if(socket_data.status==1){
@@ -215,7 +215,7 @@ io.on("connection", (socket) => {
 
         //inform provider
         sock = getUserSocket(pickup.provider);
-        sock.emit("informCancelPickup", {pickup:pickup, status: socket_data.status, role:role});
+        sock.emit("informCancelPickup", {pickup:pickup, status: socket_data.status, role: socket_data.role});
       }
     }
   })
