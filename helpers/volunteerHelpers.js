@@ -27,8 +27,7 @@ module.exports = {
   }),
   //$expr: { $gt: [ "$maxCount" , "$currentCount" ] },isActive: true,
   get_drives: expressAsyncHandler(async (req, res)=>{
-    const drives = await Drive.find({status: 1, $expr: { $gt: [ "$maxCount" , "$currentCount" ] }, volunteers_SignedUp: { $ne: req.params.volunteer_id }  });
-    console.log("Drives: ",drives);
+    const drives = await Drive.find({ $expr: { $gt: [ "$maxCount" , "$currentCount" ] }, volunteers_SignedUp: { $ne: req.params.volunteer_id }  });
     if (drives) {
       console.log("Drives",drives);
       res.send({ error: 0, drives: drives });
@@ -44,16 +43,9 @@ module.exports = {
     if(drive){
       if(drive.currentCount < drive.maxCount){
         const volunteer = await Volunteer.findById(req.body.volunteer_id);
-        const checkEnrolled = await Drive.findOne({_id:req.params.id, volunteers_SignedUp:volunteer});
-        console.log("Check: ",checkEnrolled);
-        if(checkEnrolled){
-          res.status(400).send({ error: 1, message: "Sorry, You are already enrolled in this drive, Kindly refresh"});
-        }
-        else{
-          const count = drive.currentCount + 1;
-          await Drive.findOneAndUpdate({_id: req.params.id}, {$push: {volunteers_SignedUp: volunteer}, currentCount: count});
-          res.send({error: 0, message: "Thank you! You are sucessfully enrolled in Drive"})
-        }
+        const count = drive.currentCount + 1;
+        await Drive.findOneAndUpdate({_id: req.params.id}, {$push: {volunteers_SignedUp: volunteer}, currentCount: count});
+        res.send({error: 0, message: "Thank you! You are sucessfully enrolled in Drive"})
       }
       else{
         res.status(400).send({ error: 1, message: "Sorry, the drive is full. However, thank you for showing willingness"})
@@ -63,7 +55,6 @@ module.exports = {
       res.status(404).send({ error: 1, message: "Drive not found or deleted"})
     }
   }),
-
 
   get_pickups_by_vol_id: expressAsyncHandler(async (req,res) => {
     const pickups = await Pickup.find({$or: [{volunteer: req.params.id, status:1},{broadcast: true, status: 1}]});
