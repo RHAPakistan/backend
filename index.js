@@ -39,7 +39,8 @@ connection.once('open', function() {
 })*/
 
 //connecting to mongoDB database
-mongoose.connect(process.env.MONGODB_URL || `mongodb://localhost:27017/${process.env.DB_NAME}`, {
+console.log(process.env.DB_NAME);
+mongoose.connect(process.env.MONGODB_URL || `mongodb://localhost:27017/RHA_DB`, {
 
   useNewUrlParser: true,
   //useFindAndModify: false,

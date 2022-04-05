@@ -28,6 +28,9 @@ volunteerRouter.get('/getPickups/:id', isAuth, volunteerHelpers.get_pickup_by_id
 //Register API
 volunteerRouter.post('/register', volunteerHelpers.register);
 
+//Request Induction
+volunteerRouter.post('/placeInductionRequest', volunteerHelpers.placeInductionRequest);
+
 //Login API
 volunteerRouter.post('/login', volunteerHelpers.login);
 
