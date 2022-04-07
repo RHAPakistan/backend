@@ -6,11 +6,11 @@ const volunteerSchema = new mongoose.Schema({
     email: { type: String, required: true },
     password: { type: String, required: true },
     cnic: { type: String, required: true },
-    dateOfBirth: { type: Date, required: true },
+    dateOfBirth: { type: String, required: true },
     address: { type: String, required: true },
     gender: { type: String, required: true },
     role: { type: String, enum: ['guest', 'registered'], required: true },
-    ongoing_pickup: {type:Boolean, required:true}
+    ongoing_pickup: {type:Boolean, required:true, default: false}
 })
-
+//dateOfBirth: { type: Date, required: true },
 module.exports = mongoose.model('Volunteer',volunteerSchema);

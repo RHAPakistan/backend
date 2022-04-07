@@ -9,6 +9,7 @@ const adminPickupRouter = require('./routers/admin/pickupRouter');
 const adminProviderRouter = require('./routers/admin/adminProviderRouter');
 const driveRouter = require('./routers/admin/driveRouter');
 const dropoffRouter = require("./routers/admin/dropoffRouter");
+const inductionRouter = require("./routers/admin/inductionRouter");
 const adminVolunteerRouter = require("./routers/admin/adminVolunteerRouter.js");
 const notificationsRouter = require("./routers/admin/notificationsRouter.js");
 const notificationHelpers = require("./helpers/notificationHelpers.js");
@@ -39,7 +40,7 @@ connection.once('open', function() {
 })*/
 
 //connecting to mongoDB database
-console.log(process.env.DB_NAME);
+//console.log(process.env.DB_NAME, process.env.emailPassword);
 mongoose.connect(process.env.MONGODB_URL || `mongodb://localhost:27017/RHA_DB`, {
 
   useNewUrlParser: true,
@@ -58,6 +59,7 @@ app.use('/api/admin/pickup', adminPickupRouter);
 app.use('/api/admin/provider', adminProviderRouter);
 app.use('/api/admin/dropoff', dropoffRouter);
 app.use('/api/admin/drive', driveRouter);
+app.use('/api/admin/induction', inductionRouter);
 app.use('/api/admin/volunteer', adminVolunteerRouter);
 app.use('/api/admin/notifications', notificationsRouter);
 var server = app.listen(port, () => {

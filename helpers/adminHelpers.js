@@ -4,7 +4,8 @@ const bcrypt = require('bcryptjs');
 const Volunteer = require('../models/volunteer');
 const Admin = require('../models/admin');
 const Pickup = require('../models/pickup');
-const { generateToken, isAuth } = require('../utils.js');
+const Token = require('../models/token');
+const { generateToken, sendEmail } = require('../utils.js');
 
 module.exports = {
 
@@ -59,7 +60,7 @@ module.exports = {
         }
     }),
 
-    auth_forgot:     expressAsyncHandler(async (req, res) =>{
+    auth_forgot: expressAsyncHandler(async (req, res) =>{
         const user = await Admin.findOne({ email: req.body.email });
         if (user) {
           var val = Math.floor(100000 + Math.random() * 900000);
@@ -71,9 +72,12 @@ module.exports = {
           await token.save();
           const text = "You have requested for password reset, kindly note the OTP given below to verify yourself in the app. \n Your OTP is: ";
           const message = text.concat(otp);
-          await sendEmail(user.email, "Password reset for RHA", message);
-          res.send({error: 0, message:"Password-reset-email has been sent to your Email address"});
-        }
+          const sentMail = await sendEmail(user.email, "Password reset for RHA", message);
+          if(sentMail)
+            res.send({error: 0, message:"Password-reset-email has been sent to your Email address"});
+          else
+            res.status(404).send({error: 1, message: 'Error: Email could not be sent. \n Invalid ID password OR sending email configuration error'});
+          }
         else{
           res.status(401).send({error: 1, message: 'Invalid email' });
         }
@@ -97,7 +101,7 @@ module.exports = {
           }
         }
         else{
-          res.status(401).send({error: 1, message: 'Something went wrong.' });
+          res.status(404).send({error: 1, message: 'Something went wrong' });
         }
       })
 

@@ -21,7 +21,11 @@ const inductionRequestSchema = mongoose.Schema({
     skills: {type: String},
     pickupTiming: {type: String},
     questions: {type: String},
-    isApproved : {type: Boolean, default: false}
+    isPending : {type: Boolean, required: true, default: true},
+    isApproved : {type: Boolean},
+    creation_time: {type: Date, default: Date.now},
+    approved_or_disapproved_at: {type: Date},
+    rejectionReasons: {type: String}
 })
 
 module.exports = mongoose.model("Induction_Request",inductionRequestSchema);
