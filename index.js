@@ -11,6 +11,7 @@ const driveRouter = require('./routers/admin/driveRouter');
 const dropoffRouter = require("./routers/admin/dropoffRouter");
 const adminVolunteerRouter = require("./routers/admin/adminVolunteerRouter.js");
 const notificationsRouter = require("./routers/admin/notificationsRouter.js");
+const notificationHelpers = require("./helpers/notificationHelpers.js");
 const dotenv = require('dotenv');
 dotenv.config();
 const port = process.env.PORT || 5000;
@@ -19,6 +20,7 @@ const app = express();
 const Pickup = require("./models/pickup");
 const Provider = require("./models/provider");
 const Volunteer = require("./models/volunteer");
+const PushToken = require("./models/pushToken");
 const backendHelpers = require("./helpers/backendHelpers");
 
 const {
@@ -82,11 +84,23 @@ io.on("connection", (socket) => {
     
     if (socket_data.message.broadcast == true) {
       console.log("Emmiting assign pickup event at index:72");
-      socket.broadcast.emit("assignPickup", { "message": socket_data.message})
+      socket.broadcast.emit("assignPickup", { "message": socket_data.message});
+
+      //send notification to all volunteers
+      notificationHelpers.send_notification_all(
+        "volunteer",
+        "Pickup Assignment",
+        "Admin has broadcasted a pickup");
+
     } else {
       //the pickup object should have a volunteer id
       sock = getUserSocket(socket_data.message.volunteer);
       sock.emit("assignPickupSpecific",{"message": socket_data.message}); 
+      notificationHelpers.send_notification_to(
+        socket_data.message.volunteer,
+        "Pickup Assignment",
+        "The admin has assigned a pickup specifically to you"
+        )
     }
   })
 
@@ -98,13 +112,28 @@ io.on("connection", (socket) => {
     console.log("food picked of ", socket_data.message);
     pickup.status = 3;
     await Pickup.findByIdAndUpdate(socket_data.message._id, pickup);
+
     //send a message to provider
     sock = getUserSocket(socket_data.message.provider);
     sock.emit("foodPicked", { "message": pickup});
+    //send notifcation to provider
+    notificationHelpers.send_notification_to(
+      socket_data.message.provider,
+      "Food Picked",
+      "The food has been picked"
+    );
 
-    //send a message to provider
+
+    //send a message to admin
     sock = getUserSocket(socket_data.message.admin);
     sock.emit("foodPicked", { "message": pickup})
+    ///send notification to admin
+    notificationHelpers.send_notification_to(
+      socket_data.message.admin,
+      "Food Picked",
+      "The food has been picked"
+    )     
+
   })
 
   socket.on("foodDelivered", async (socket_data) => {
@@ -125,10 +154,23 @@ io.on("connection", (socket) => {
     const provider = await Provider.findById(socket_data.message.provider);
     const volunteer = await Volunteer.findById(socket_data.message.volunteer);
     sock.emit("acceptPickup", { "message": socket_data.message,"provider":provider,"volunteer":volunteer});
+    //send notification to admin
+    notificationHelpers.send_notification_to(
+      socket_data.message.admin,
+      "Pickup Accepted",
+      "The pickup has been accepted"
+    )       
+
+
 
     //send a message to provider
     sock = getUserSocket(socket_data.message.provider);
     sock.emit("acceptPickup", { "message": socket_data.message })
+    notificationHelpers.send_notification_to(
+      socket_data.message.provider,
+      "Pickup accepted",
+      "The pickup has been accepted"
+    )   
   })
 
   socket.on("finishPickup", async (socket_data) => {
@@ -141,10 +183,17 @@ io.on("connection", (socket) => {
     pickup.status = 4;
     await Pickup.findByIdAndUpdate(socket_data.message._id, pickup);
    
+    //inform admin
     sock = getUserSocket("62178d81aa73e4f46d5ff2c5");
     const provider = await Provider.findById(socket_data.message.provider);
     const volunteer = await Volunteer.findById(socket_data.message.volunteer);
     sock.emit("finishPickup", { "message": pickup,"provider":provider,"volunteer":volunteer});
+    //send notification to admin
+    notificationHelpers.send_notification_to(
+      socket_data.message.admin,
+      "Food Delivered",
+      "The food has been delivered"
+    )   
 
   })
 
@@ -154,6 +203,13 @@ io.on("connection", (socket) => {
     await Provider.findByIdAndUpdate(sock_data.message.provider, {"ongoing_pickup":true});      
     sock = getUserSocket("62178d81aa73e4f46d5ff2c5");
     sock.emit("initiatePickupListen", { "message": sock_data.message });
+    //send notification to admin
+    notificationHelpers.send_notification_to(
+      socket_data.message.admin,
+      "Pickup initiated",
+      "The pickup has been initiated"
+    )   
+    
   })
 
   socket.on("broadcastPickup", async(socket_data)=>{
@@ -163,12 +219,23 @@ io.on("connection", (socket) => {
     if (socket_data.message.broadcast) {
       console.log("Emmiting assign pickup event at index:72");
       socket.broadcast.emit("assignPickup", { "message": socket_data.message})
+      //send notification to all volunteers
+      notificationHelpers.send_notification_all(
+        "volunteer",
+        "Pickup Assignment",
+        "Admin has broadcasted a pickup");
     } else {
       //the pickup object should have a volunteer id
       sock = getUserSocket(socket_data.message.volunteer);
       sock.emit("assignPickupSpecific",{"message": socket_data.message}); 
+      //send notification to the vol
+      notificationHelpers.send_notification_to(
+        socket_data.message.volunteer,
+        "Pickup Assignment",
+        "The pickup has been assigned specifically to you"
+      )   
     }
-    socket.broadcast.emit("assignPickup", { "message": socket_data.message})
+    // socket.broadcast.emit("assignPickup", { "message": socket_data.message})
     
   })
 
@@ -185,6 +252,11 @@ io.on("connection", (socket) => {
     //notify the admin
     sock = getUserSocket("62178d81aa73e4f46d5ff2c5");
     sock.emit("informCancelPickup", {pickup:pickup, status:socket_data.status, role: socket_data.role});
+    notificationHelpers.send_notification_to(
+      socket_data.message.admin,
+      "Pickup Cancelled",
+      `The pickup has been cancelled by ${socket_data.role}`
+    )   
     }
 
     //the admin cancels pickup
@@ -197,6 +269,11 @@ io.on("connection", (socket) => {
       //notify provider
       sock = getUserSocket(socket_data.pickup.provider);
       sock.emit("informCancelPickup", {pickup: pickup, status:socket_data.status, role: socket_data.role})
+      notificationHelpers.send_notification_to(
+        socket_data.message.provider,
+        "Pickup Cancelled",
+        `The pickup has been cancelled by ${socket_data.role}`
+      )   
     }
 
 
@@ -216,9 +293,19 @@ io.on("connection", (socket) => {
         sock.emit("informCancelPickup", {pickup:pickup,status:socket_data.status, role:socket_data.role});
         }
         console.log("no volunteer assigned");
+        notificationHelpers.send_notification_to(
+          socket_data.message.volunteer,
+          "Pickup Cancelled",
+          `The pickup has been cancelled by ${socket_data.role}`
+        )   
         //notify the admin
         sock = getUserSocket("62178d81aa73e4f46d5ff2c5");
-        sock.emit("informCancelPickup", {pickup:pickup, status:socket_data.status, role:socket_data.role});        
+        sock.emit("informCancelPickup", {pickup:pickup, status:socket_data.status, role:socket_data.role});       
+        notificationHelpers.send_notification_to(
+          "62178d81aa73e4f46d5ff2c5",
+          "Pickup Cancelled",
+          `The pickup has been cancelled by ${socket_data.role}`
+        )    
 
 
       }
@@ -234,13 +321,27 @@ io.on("connection", (socket) => {
       sock = getUserSocket(socket_data.pickup.provider);
       sock.emit("informCancelPickup", {pickup: pickup, status:socket_data.status, role: socket_data.role})
       console.log("informed provider");
+      notificationHelpers.send_notification_to(
+        socket_data.pickup.provider,
+        "Pickup Cancelled",
+        `The pickup has been cancelled by ${socket_data.role}`
+      )    
       //notify volunteer
       if(socket_data.pickup.volunteer){
       sock = getUserSocket(socket_data.pickup.volunteer);
       sock.emit("informCancelPickup", {pickup:pickup, status:socket_data.status, role: socket_data.role})
+      notificationHelpers.send_notification_to(
+        socket_data.pickup.volunteer,
+        "Pickup Cancelled",
+        `The pickup has been cancelled by ${socket_data.role}`
+      )    
       }
       else{
         socket.broadcast.emit("informCancelVolunteer",{pickup:pickup, status:socket_data.status, role: socket_data.role});
+        notificationHelpers.send_notification_all(
+          "volunteer",
+          "Pickup Assignment",
+          "Admin has broadcasted a pickup");
       }
     }
     }
@@ -253,14 +354,27 @@ io.on("connection", (socket) => {
         delete pickup.volunteer;
         await Pickup.findByIdAndUpdate(pickup._id, pickup);
         socket.broadcast.emit("assignPickup", { "message": pickup})
+        notificationHelpers.send_notification_all(
+          "volunteer",
+          "Pickup Assignment",
+          "Admin has broadcasted a pickup");
 
         //inform admin
         sock= getUserSocket("62178d81aa73e4f46d5ff2c5");
         sock.emit("informCancelPickup",{pickup:pickup, status: socket_data.status, role:socket_data.role});
-
+        notificationHelpers.send_notification_to(
+          "62178d81aa73e4f46d5ff2c5",
+          "Pickup Cancelled",
+          `The pickup has been cancelled by ${socket_data.role}`
+        )    
         //inform provider
         sock = getUserSocket(pickup.provider);
         sock.emit("informCancelPickup", {pickup:pickup, status: socket_data.status, role: socket_data.role});
+        notificationHelpers.send_notification_to(
+          socket_data.pickup.provider,
+          "Pickup Cancelled",
+          `The pickup has been cancelled by ${socket_data.role}`
+        )    
       }
 
     //the admin cancels pickup
@@ -273,10 +387,19 @@ io.on("connection", (socket) => {
       //notify provider
       sock = getUserSocket(socket_data.pickup.provider);
       sock.emit("informCancelPickup", {pickup: pickup, status:socket_data.status, role: socket_data.role})
-
+      notificationHelpers.send_notification_to(
+        socket_data.pickup.provider,
+        "Pickup Cancelled",
+        `The pickup has been cancelled by ${socket_data.role}`
+      )    
       //notify volunteer
       sock = getUserSocket(socket_data.pickup.volunteer);
       sock.emit("informCancelPickup", {pickup:pickup, status:socket_data.status, role: socket_data.role})
+      notificationHelpers.send_notification_to(
+        socket_data.pickup.volunteer,
+        "Pickup Cancelled",
+        `The pickup has been cancelled by ${socket_data.role}`
+      )    
     }
     }
   })

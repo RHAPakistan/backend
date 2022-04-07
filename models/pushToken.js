@@ -5,6 +5,10 @@ const pushTokenSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         required: true,
     },
+    userType: {
+        type:String,
+        required: true
+    },
     tokens: {
         type: Array,
         required: true,

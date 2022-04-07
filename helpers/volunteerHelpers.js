@@ -67,9 +67,7 @@ module.exports = {
   }),
 
   get_pickup_by_id: expressAsyncHandler(async (req, res) => {
-    console.log("??????????????????????");
     const pickup = await Pickup.findById(req.params.id);
-    console.log("The pickupid in params is ", req.params.id);
     if (pickup) {
       res.send({ error: 0, pickup: pickup });
     } else {

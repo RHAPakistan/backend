@@ -22,6 +22,9 @@ volunteerRouter.get('/getDrives/:volunteer_id', volunteerHelpers.get_drives);
 //profile API
 volunteerRouter.get('/:id', isAuth, volunteerHelpers.get_pickup_by_id);
 
+//get pickups API
+volunteerRouter.get('/getPickups/:id', isAuth, volunteerHelpers.get_pickup_by_id);
+
 //Register API
 volunteerRouter.post('/register', volunteerHelpers.register);
 
