@@ -1,3 +1,4 @@
+const admin = require('./firebase-config.js');
 const express = require('express');
 const bodyParsser = require('body-parser');
 const mongoose = require('mongoose');
@@ -9,6 +10,7 @@ const adminProviderRouter = require('./routers/admin/adminProviderRouter');
 const driveRouter = require('./routers/admin/driveRouter');
 const dropoffRouter = require("./routers/admin/dropoffRouter");
 const adminVolunteerRouter = require("./routers/admin/adminVolunteerRouter.js");
+const notificationsRouter = require("./routers/admin/notificationsRouter.js");
 const dotenv = require('dotenv');
 dotenv.config();
 const port = process.env.PORT || 5000;
@@ -54,7 +56,7 @@ app.use('/api/admin/provider', adminProviderRouter);
 app.use('/api/admin/dropoff', dropoffRouter);
 app.use('/api/admin/drive', driveRouter);
 app.use('/api/admin/volunteer', adminVolunteerRouter);
-
+app.use('/api/admin/notifications', notificationsRouter);
 var server = app.listen(port, () => {
   console.log(`Server is running on port: ${port}`);
 });
