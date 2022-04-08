@@ -205,7 +205,7 @@ io.on("connection", (socket) => {
     sock.emit("initiatePickupListen", { "message": sock_data.message });
     //send notification to admin
     notificationHelpers.send_notification_to(
-      socket_data.message.admin,
+      sock_data.message.admin,
       "Pickup initiated",
       "The pickup has been initiated"
     )   
@@ -270,7 +270,7 @@ io.on("connection", (socket) => {
       sock = getUserSocket(socket_data.pickup.provider);
       sock.emit("informCancelPickup", {pickup: pickup, status:socket_data.status, role: socket_data.role})
       notificationHelpers.send_notification_to(
-        socket_data.message.provider,
+        socket_data.pickup.provider,
         "Pickup Cancelled",
         `The pickup has been cancelled by ${socket_data.role}`
       )   
