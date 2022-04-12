@@ -13,6 +13,9 @@ pass query as parameters
 */
 providerRouter.get("/:id", helpers.get_provider); 
 
+//
+providerRouter.get("/", helpers.get_providers);
+
 //create provider
 providerRouter.post("/", helpers.create_provider);
 
@@ -21,6 +24,5 @@ providerRouter.patch("/:id", helpers.update_provider);
 
 //delete provider
 providerRouter.delete("/:id",helpers.delete_provider);
-
 
 module.exports = providerRouter;

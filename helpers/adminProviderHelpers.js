@@ -36,6 +36,15 @@ module.exports = {
         }
     }),
 
+    get_providers: expressAsyncHandler(async (req,res)=>{
+      const response = await Provider.find({});
+      if (response){
+          res.status(200).send(response)
+      }else{
+          res.status(404).send({"message":"user not found"})
+      }
+  }),
+
     create_provider: expressAsyncHandler(async (req, res) => {
         console.log(req.body);
         const user = await Provider.findOne({ email: req.body.email });

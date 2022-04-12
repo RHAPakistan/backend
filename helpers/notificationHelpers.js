@@ -69,6 +69,7 @@ module.exports = {
     }),
 
     send_notification_to: expressAsyncHandler(async(userId,title,messageBody)=>{
+      console.log("Send notifciation to ", userId, title, messageBody);
       volunteer_push_tokens = await PushToken.find({"userId":userId},{"_id":0,"tokens":1});
       volunteer_push_tokens.map((item)=>{
         item.tokens.map((subitem)=>{

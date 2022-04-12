@@ -24,12 +24,18 @@ module.exports = {
       const createdUser = await user.save();
 
       //respond to request
+      if(createdUser){
       res.send({
         _id: createdUser._id,
         name: createdUser.name,
         email: createdUser.email,
         token: generateToken(createdUser),
       });
+    }else{
+      res.send({
+        message: "Incorrect information provided"
+      })
+    }
     }
   }),
 
