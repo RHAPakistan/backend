@@ -4,8 +4,9 @@ const bcrypt = require('bcryptjs');
 const Volunteer = require('../models/volunteer');
 const Pickup = require('../models/pickup');
 const Drive = require('../models/drive');
+const Token = require('../models/token');
 const InductionRequest = require('../models/inductionRequest');
-const { generateToken } = require('../utils.js');
+const { generateToken, sendEmail } = require('../utils.js');
 module.exports = {
 
   get_pickups: expressAsyncHandler(async (req, res) => {
@@ -117,21 +118,27 @@ module.exports = {
   placeInductionRequest: expressAsyncHandler(async (req, res)=>{
     console.log("Volunteer request for induction");
     console.log("Data is: ",req.body);
-    const user = new InductionRequest(req.body);
-    const createdUser = await user.save();
-    if(createdUser){
-      res.send({
-        error: 0,
-        message: "Request submitted sucessfully! \nYour Request has been sent to Admin. He/She will go through it and will email you! \nKindly wait for the email",
-        user: createdUser
-      })
+    const alreadyUser = await InductionRequest.findOne(req.body.email);
+    if(alreadyUser){
+      res.status('401').send({error: 1, message: "Email already been used. \nKindly use differnt email"});
     }
     else{
-      res.status(500).send({
-        error: 1,
-        message: "Some Error occured"
-      })
-    }
+      const user = new InductionRequest(req.body);
+      const createdUser = await user.save();
+      if(createdUser){
+        res.send({
+          error: 0,
+          message: "Request submitted sucessfully! \nYour Request has been sent to Admin. He/She will go through it and will email you! \nKindly wait for the email",
+          user: createdUser
+        })
+      }
+      else{
+        res.status(500).send({
+          error: 1,
+          message: "Some Error occured"
+        })
+      }
+    }  
   }),
 
   login: expressAsyncHandler(async (req, res) => {
@@ -141,7 +148,7 @@ module.exports = {
     const user = await Volunteer.findOne({ email: req.body.email });
     //console.log(user._id);
     if (user) {
-      if (bcrypt.compareSync(req.body.password, user.password, )) {
+      if (bcrypt.compareSync(req.body.password, user.password)) {
         const activePickups = await Pickup.find({ status: 1 });
         const pickupHistory = await Pickup.find({ volunteer_id: user._id });
         res.send({
@@ -163,7 +170,8 @@ module.exports = {
       res.status(401).send({ error: 1, message: 'Invalid email' });
     }
   }),
-updateProfie: expressAsyncHandler(async (req, res) => {
+
+  updateProfie: expressAsyncHandler(async (req, res) => {
     const user = await Volunteer.findById(req.params.id);
     if (user) {
       await Volunteer.updateOne({ _id: req.params.id },
@@ -219,5 +227,71 @@ updateProfie: expressAsyncHandler(async (req, res) => {
     } else {
       res.status(404).send({ error: 1, message: "Pickup not found" });
     }
+  }),
+
+  auth_forgot: expressAsyncHandler(async (req, res) =>{
+    const user = await Volunteer.findOne({ email: req.body.email });
+    if (user) {
+      const alreadyToken = await Token.findOne({userId: user._id});
+      if(alreadyToken){
+        await alreadyToken.remove();
+      }
+      var val = Math.floor(100000 + Math.random() * 900000);
+      const otp = val.toString();
+      const token = new Token({
+        userId :user._id,
+        otp: otp
+      });
+      await token.save();
+      const text = "You have requested for password reset, kindly note the OTP given below to verify yourself in the app. \n Your OTP is: ";
+      const message = text.concat(otp);
+      const sentMail = await sendEmail(user.email, "Password reset for RHA", message);
+      if(sentMail)
+        res.send({error: 0, message:"Password-reset-email has been sent to your Email address"});
+      else
+        res.status(404).send({error: 1, message: 'Error: Email could not be sent due to some error'});
+      }
+    else{
+      res.status(401).send({error: 1, message: 'Invalid email' });
+    }
+  }),
+
+  auth_forgot_verifyOTP: expressAsyncHandler(async (req, res)=>{
+    const user = await Volunteer.findOne({ email: req.body.email });
+    if(user){
+      const token = await Token.findOne({ userId: user._id, otp: req.body.otp});
+      if(token){
+        res.send({error: 0, tokenId: token._id, message: 'Token Verified Sucessfully!'});
+      }
+      else{
+        res.status(401).send({error: 1, message: 'OTP invalid or expired'});  
+      }
+    }
+    else{
+      res.status(404).send({error: 1, message: 'No user with this Email' });
+    }
+  }),
+
+  auth_forgot_changePassword: expressAsyncHandler(async (req, res)=>{
+    const user = await Volunteer.findOne({ email: req.body.email });
+    if(user){
+      const token = await Token.findOne({ userId: user._id, otp: req.body.otp});
+      if(token){
+        await Volunteer.updateOne(
+          {_id: user._id},
+          { password: bcrypt.hashSync(req.body.newPassword, 8)},
+          { upsert: true }
+        );
+        await token.remove();
+        res.send({error: 0, message: 'Your Password has been sucessfully changed.'});
+      }
+      else{
+        res.status(401).send({error: 1, message: 'OTP invalid or expired'});  
+      }
+    }
+    else{
+      res.status(404).send({error: 1, message: 'No user with this Email' });
+    }
   })
+
 };

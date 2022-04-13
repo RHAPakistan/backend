@@ -13,8 +13,9 @@ notificationsRouter.post('/logout', notificationHelpers.logout);
 notificationsRouter.post('/test', async (req, res) => {
 
   notificationHelpers.send_notification_to("provider",
-  "Ye tou hoga!", "jo horaha hai paihli dafa hai");
-  res.status(200).send("Hogaya");
+  // notificationHelpers.send_notification_all("provider",
+  // "Ye tou hoga!", "jo horaha hai paihli dafa hai");
+  // res.status(200).send("Hogaya");
   // try {
     // await axios
     // .post(

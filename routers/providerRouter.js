@@ -81,6 +81,15 @@ providerRouter.patch('/:id', isAuth, providerHelpers.updateUser);
 //create pickup
 providerRouter.post("/pickup/register", isAuth, providerHelpers.createPickup)
 
+//to send otp to person's email
+providerRouter.post('/auth/forgot', providerHelpers.auth_forgot);
+
+//to verify that otp against that mail
+providerRouter.post('/auth/forgot/verifyOTP', providerHelpers.auth_forgot_verifyOTP);
+
+//to change the password if otp have matched
+providerRouter.post('/auth/forgot/changePassword', providerHelpers.auth_forgot_changePassword)
+
 //Get pickup
 providerRouter.get('/pickup/:id', isAuth, providerHelpers.getPickup);
 
