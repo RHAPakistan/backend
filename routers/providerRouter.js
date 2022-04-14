@@ -62,7 +62,9 @@ providerRouter.post("/assi",async (req, res)=>{
     res.send({abcd:"you go"});
 });
 //=============================================================
-
+providerRouter.get("/getContact", async(req,res)=>{
+    res.status(200).send({"message":"shuja"})
+})
 //Register API | create
 providerRouter.post('/register', providerHelpers.register);
 
@@ -98,6 +100,7 @@ providerRouter.delete("/pickup/:id", isAuth, providerHelpers.deletePickup)
 
 //update pickup
 providerRouter.patch("/pickup/:id", isAuth, providerHelpers.updatePickup)
+
 
 
 //export default providerRouter;
