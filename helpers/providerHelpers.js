@@ -172,6 +172,7 @@ module.exports = {
       const text = "You have requested for password reset, kindly note the OTP given below to verify yourself in the app. \n Your OTP is: ";
       const message = text.concat(otp);
       const sentMail = await sendEmail(user.email, "Password reset for RHA", message);
+      console.log("Problem with email", sentMail);
       if(sentMail)
         res.send({error: 0, message:"Password-reset-email has been sent to your Email address"});
       else

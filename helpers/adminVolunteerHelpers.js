@@ -49,7 +49,8 @@ module.exports = {
             dateOfBirth: req.body.dateOfBirth,
             address: req.body.address,
             gender: req.body.gender,
-            role: req.body.role
+            role: req.body.role,
+            ongoing_pickup: false
           });
           const createdUser = await user.save();
           res.send({
