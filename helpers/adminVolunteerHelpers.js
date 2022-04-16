@@ -119,5 +119,16 @@ module.exports = {
         } else {
           res.status(404).send({error: 1, message: 'User Not Found' });
         }
-      })
+      }),
+    search_volunteers: expressAsyncHandler(async (req, res)=>{
+      //const volunteers = await Volunteer.find({ fullName: { $regex: `(?i)${req.body.text}` } });
+      let volunteers = await Volunteer.find({$text: { $search: req.body.text }});
+      if(volunteers.length >0){
+        res.status(200).send({error: 0, volunteers: volunteers})
+      }
+      else{
+        volunteers = await Volunteer.find();
+        res.send({error: 1, message: "No Such volunteer", volunteers: volunteers});
+      }
+    })
 };

@@ -63,7 +63,8 @@ providerRouter.post("/assi",async (req, res)=>{
 });
 //=============================================================
 providerRouter.get("/getContact", async(req,res)=>{
-    res.status(200).send({"message":"shuja"})
+    const contacts = [{name: "Shuja Hussain", number: "03352225855"}, {name: "Sameer Baig", number: "03458777648"}]
+    res.status(200).send(contacts)
 })
 //Register API | create
 providerRouter.post('/register', providerHelpers.register);

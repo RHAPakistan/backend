@@ -88,5 +88,17 @@ module.exports = {
         }
       }),
 
+      search_providers: expressAsyncHandler(async (req, res)=>{
+        //const providers = await Provider.find({ fullName: { $regex: `(?i)${req.body.text}` } });
+        let providers = await Provider.find({$text: { $search: req.body.text }});
+        if(providers.length >0){
+          res.status(200).send({error: 0, providers: providers})
+        }
+        else{
+          providers = await Provider.find();
+          res.send({error: 1, message: "No Such provider", providers: providers});
+        }
+      })
+
 
 }

@@ -25,4 +25,7 @@ providerRouter.patch("/:id", helpers.update_provider);
 //delete provider
 providerRouter.delete("/:id",helpers.delete_provider);
 
+//search for volunteers
+providerRouter.post('/search', helpers.search_providers);
+
 module.exports = providerRouter;
