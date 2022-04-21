@@ -19,20 +19,20 @@ module.exports = {
     }
   }),
 
-  get_volunteer: expressAsyncHandler(async (req,res)=>{
+  get_volunteer: expressAsyncHandler(async (req, res) => {
     const volunteer = await Pickup.findById(req.params.id);
-    if(volunteer){
-      res.send({volunteer: volunteer})
-    }else{
-      res.status(404).send({error:1, message:"not found"});
+    if (volunteer) {
+      res.send({ volunteer: volunteer })
+    } else {
+      res.status(404).send({ error: 1, message: "not found" });
     }
   }),
-  
-  get_drives: expressAsyncHandler(async (req, res)=>{
-    const drives = await Drive.find({status: 1, $expr: { $gt: [ "$maxCount" , "$currentCount" ] }, volunteers_SignedUp: { $ne: req.params.volunteer_id }  });
-    console.log("Drives: ",drives);
+
+  get_drives: expressAsyncHandler(async (req, res) => {
+    const drives = await Drive.find({ status: 1, $expr: { $gt: ["$maxCount", "$currentCount"] }, volunteers_SignedUp: { $ne: req.params.volunteer_id } });
+    console.log("Drives: ", drives);
     if (drives) {
-      console.log("Drives",drives);
+      console.log("Drives", drives);
       res.send({ error: 0, drives: drives });
     }
     else {
@@ -40,35 +40,35 @@ module.exports = {
     }
   }),
 
-  enrollDrive: expressAsyncHandler(async (req, res)=>{
+  enrollDrive: expressAsyncHandler(async (req, res) => {
     const drive = await Drive.findById(req.params.id);
     console.log(drive);
-    if(drive){
-      if(drive.currentCount < drive.maxCount){
+    if (drive) {
+      if (drive.currentCount < drive.maxCount) {
         const volunteer = await Volunteer.findById(req.body.volunteer_id);
-        const checkEnrolled = await Drive.findOne({_id:req.params.id, volunteers_SignedUp:volunteer});
-        console.log("Check: ",checkEnrolled);
-        if(checkEnrolled){
-          res.status(400).send({ error: 1, message: "Sorry, You are already enrolled in this drive, Kindly refresh"});
+        const checkEnrolled = await Drive.findOne({ _id: req.params.id, volunteers_SignedUp: volunteer });
+        console.log("Check: ", checkEnrolled);
+        if (checkEnrolled) {
+          res.status(400).send({ error: 1, message: "Sorry, You are already enrolled in this drive, Kindly refresh" });
         }
-        else{
+        else {
           const count = drive.currentCount + 1;
-          await Drive.findOneAndUpdate({_id: req.params.id}, {$push: {volunteers_SignedUp: volunteer}, currentCount: count});
-          res.send({error: 0, message: "Thank you! You are sucessfully enrolled in Drive"})
+          await Drive.findOneAndUpdate({ _id: req.params.id }, { $push: { volunteers_SignedUp: volunteer }, currentCount: count });
+          res.send({ error: 0, message: "Thank you! You are sucessfully enrolled in Drive" })
         }
       }
-      else{
-        res.status(400).send({ error: 1, message: "Sorry, the drive is full. However, thank you for showing willingness"})
+      else {
+        res.status(400).send({ error: 1, message: "Sorry, the drive is full. However, thank you for showing willingness" })
       }
     }
-    else{
-      res.status(404).send({ error: 1, message: "Drive not found or deleted"})
+    else {
+      res.status(404).send({ error: 1, message: "Drive not found or deleted" })
     }
   }),
 
 
-  get_pickups_by_vol_id: expressAsyncHandler(async (req,res) => {
-    const pickups = await Pickup.find({$or: [{volunteer: req.params.id, status:1},{broadcast: true, status: 1}]});
+  get_pickups_by_vol_id: expressAsyncHandler(async (req, res) => {
+    const pickups = await Pickup.find({ $or: [{ volunteer: req.params.id, status: 1 }, { broadcast: true, status: 1 }] });
     if (pickups) {
       res.send({ error: 0, pickups: pickups });
     }
@@ -102,7 +102,8 @@ module.exports = {
         dateOfBirth: req.body.dateOfBirth,
         address: req.body.address,
         gender: req.body.gender,
-        role: req.body.role
+        role: req.body.role,
+        location: req.body.location ? req.body.location : { type: "Point", coordinates: [-1, 0] }
       });
       const createdUser = await user.save();
       res.send({
@@ -115,30 +116,30 @@ module.exports = {
     }
   }),
 
-  placeInductionRequest: expressAsyncHandler(async (req, res)=>{
+  placeInductionRequest: expressAsyncHandler(async (req, res) => {
     console.log("Volunteer request for induction");
-    console.log("Data is: ",req.body);
+    console.log("Data is: ", req.body);
     const alreadyUser = await InductionRequest.findOne(req.body.email);
-    if(alreadyUser){
-      res.status('401').send({error: 1, message: "Email already been used. \nKindly use differnt email"});
+    if (alreadyUser) {
+      res.status('401').send({ error: 1, message: "Email already been used. \nKindly use differnt email" });
     }
-    else{
+    else {
       const user = new InductionRequest(req.body);
       const createdUser = await user.save();
-      if(createdUser){
+      if (createdUser) {
         res.send({
           error: 0,
           message: "Request submitted sucessfully! \nYour Request has been sent to Admin. He/She will go through it and will email you! \nKindly wait for the email",
           user: createdUser
         })
       }
-      else{
+      else {
         res.status(500).send({
           error: 1,
           message: "Some Error occured"
         })
       }
-    }  
+    }
   }),
 
   login: expressAsyncHandler(async (req, res) => {
@@ -229,68 +230,104 @@ module.exports = {
     }
   }),
 
-  auth_forgot: expressAsyncHandler(async (req, res) =>{
+  auth_forgot: expressAsyncHandler(async (req, res) => {
     const user = await Volunteer.findOne({ email: req.body.email });
     if (user) {
-      const alreadyToken = await Token.findOne({userId: user._id});
-      if(alreadyToken){
+      const alreadyToken = await Token.findOne({ userId: user._id });
+      if (alreadyToken) {
         await alreadyToken.remove();
       }
       var val = Math.floor(100000 + Math.random() * 900000);
       const otp = val.toString();
       const token = new Token({
-        userId :user._id,
+        userId: user._id,
         otp: otp
       });
       await token.save();
       const text = "You have requested for password reset, kindly note the OTP given below to verify yourself in the app. \n Your OTP is: ";
       const message = text.concat(otp);
       const sentMail = await sendEmail(user.email, "Password reset for RHA", message);
-      if(sentMail)
-        res.send({error: 0, message:"Password-reset-email has been sent to your Email address"});
+      if (sentMail)
+        res.send({ error: 0, message: "Password-reset-email has been sent to your Email address" });
       else
-        res.status(404).send({error: 1, message: 'Error: Email could not be sent due to some error'});
-      }
-    else{
-      res.status(401).send({error: 1, message: 'Invalid email' });
+        res.status(404).send({ error: 1, message: 'Error: Email could not be sent due to some error' });
+    }
+    else {
+      res.status(401).send({ error: 1, message: 'Invalid email' });
     }
   }),
 
-  auth_forgot_verifyOTP: expressAsyncHandler(async (req, res)=>{
+  auth_forgot_verifyOTP: expressAsyncHandler(async (req, res) => {
     const user = await Volunteer.findOne({ email: req.body.email });
-    if(user){
-      const token = await Token.findOne({ userId: user._id, otp: req.body.otp});
-      if(token){
-        res.send({error: 0, tokenId: token._id, message: 'Token Verified Sucessfully!'});
+    if (user) {
+      const token = await Token.findOne({ userId: user._id, otp: req.body.otp });
+      if (token) {
+        res.send({ error: 0, tokenId: token._id, message: 'Token Verified Sucessfully!' });
       }
-      else{
-        res.status(401).send({error: 1, message: 'OTP invalid or expired'});  
+      else {
+        res.status(401).send({ error: 1, message: 'OTP invalid or expired' });
       }
     }
-    else{
-      res.status(404).send({error: 1, message: 'No user with this Email' });
+    else {
+      res.status(404).send({ error: 1, message: 'No user with this Email' });
     }
   }),
 
-  auth_forgot_changePassword: expressAsyncHandler(async (req, res)=>{
+  auth_forgot_changePassword: expressAsyncHandler(async (req, res) => {
     const user = await Volunteer.findOne({ email: req.body.email });
-    if(user){
-      const token = await Token.findOne({ userId: user._id, otp: req.body.otp});
-      if(token){
+    if (user) {
+      const token = await Token.findOne({ userId: user._id, otp: req.body.otp });
+      if (token) {
         await Volunteer.updateOne(
-          {_id: user._id},
-          { password: bcrypt.hashSync(req.body.newPassword, 8)},
+          { _id: user._id },
+          { password: bcrypt.hashSync(req.body.newPassword, 8) },
           { upsert: true }
         );
         await token.remove();
-        res.send({error: 0, message: 'Your Password has been sucessfully changed.'});
+        res.send({ error: 0, message: 'Your Password has been sucessfully changed.' });
       }
-      else{
-        res.status(401).send({error: 1, message: 'OTP invalid or expired'});  
+      else {
+        res.status(401).send({ error: 1, message: 'OTP invalid or expired' });
       }
     }
-    else{
-      res.status(404).send({error: 1, message: 'No user with this Email' });
+    else {
+      res.status(404).send({ error: 1, message: 'No user with this Email' });
+    }
+  }),
+  get_by_distance: expressAsyncHandler(async (req, res) => {
+    //the req.body must have coordinates of the pickup
+    pickup_coordinates = req.body.pickup_coordinates ? req.body.pickup_coordinates : [];
+    //get all volunteers from the database with ongoing_pickup=false
+    //there should be a field in the schema of volunteer that has the location coordinates
+    const resp = await Volunteer.find(
+      {
+        location:
+        {
+          $near:
+          {
+            $geometry: { type: "Point", coordinates: pickup_coordinates },
+            $minDistance: 0,
+            $maxDistance: 100000000
+          }
+        }
+      }
+    )
+    console.log(resp);
+    res.send({ "message": resp });
+  }),
+
+  update_location: expressAsyncHandler(async (req, res) => {
+    const user = await Volunteer.findById(req.body._id);
+
+    if (user) {
+      await Volunteer.updateOne({ _id: req.body._id },
+        {
+          location: { type: "Point", coordinates: req.body.coordinates }
+        });
+      const updateUser = await Volunteer.findById(req.body._id);
+      res.send({ error: 0, message: "Succesfully updated", updatedUser: updateUser })
+    } else {
+      res.status(404).send({ messaeg: "Not found" });
     }
   })
 

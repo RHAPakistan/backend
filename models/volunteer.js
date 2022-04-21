@@ -1,5 +1,15 @@
 const  mongoose  = require("mongoose");
-
+const pointSchema = new mongoose.Schema({
+    type: {
+      type: String,
+      enum: ['Point'],
+      required: true
+    },
+    coordinates: {
+      type: [Number],
+      required: true
+    }
+  });
 const volunteerSchema = new mongoose.Schema({
     fullName: { type: String, required: true },
     contactNumber: { type: String, required: true },
@@ -10,7 +20,12 @@ const volunteerSchema = new mongoose.Schema({
     address: { type: String, required: true },
     gender: { type: String, required: true },
     role: { type: String, enum: ['guest', 'registered'], required: true },
-    ongoing_pickup: {type:Boolean, required:true, default: false}
+    ongoing_pickup: {type:Boolean, required:true, default: false},
+    location: {
+        type: pointSchema,
+        required: false
+    }
 })
+volunteerSchema.index({ location: '2dsphere' });
 //dateOfBirth: { type: Date, required: true },
 module.exports = mongoose.model('Volunteer',volunteerSchema);

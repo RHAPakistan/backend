@@ -50,7 +50,8 @@ module.exports = {
             address: req.body.address,
             gender: req.body.gender,
             role: req.body.role,
-            ongoing_pickup: false
+            ongoing_pickup: false,
+            location: req.body.location?req.body.location:{type:"Point", coordinates:[-1,0]}
           });
           const createdUser = await user.save();
           res.send({
