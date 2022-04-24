@@ -307,7 +307,7 @@ module.exports = {
           {
             $geometry: { type: "Point", coordinates: pickup_coordinates },
             $minDistance: 0,
-            $maxDistance: 100000000
+            $maxDistance: 100
           }
         }
       }

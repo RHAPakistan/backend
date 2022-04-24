@@ -146,7 +146,7 @@ io.on("connection", (socket) => {
 
   socket.on("acceptPickup", async (socket_data) => {
 
-    console.log("pickup acceped => ", socket_data);
+    // console.log("pickup acceped => ", socket_data);
     //update volunteer's ongoing_pickup status
     await Volunteer.findByIdAndUpdate(socket_data.message.volunteer, {"ongoing_pickup":true});
     
