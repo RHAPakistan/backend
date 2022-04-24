@@ -46,7 +46,8 @@ module.exports = {
                     dateOfBirth: user.dob,
                     address: user.address,
                     gender: user.gender,
-                    role: "registered"
+                    role: "registered",
+                    locationCoordinate: user.locationCoordinate
                 });
                 const createdUser = await vol.save();
                 if(createdUser){
