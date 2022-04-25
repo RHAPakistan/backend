@@ -27,7 +27,7 @@ const pickupSchema = new mongoose.Schema({
     status: {type: Number, enum: [0,1,2,3,4,5], required: true,},
     //pickupCoordinate: [{type: Number}]
     pickupCoordinate: {
-        type: pointSchema,
+        type: pointSchema
     }
 })
 pickupSchema.index( {  pickupCoordinate : "2dsphere" } )
