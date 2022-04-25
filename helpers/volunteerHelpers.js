@@ -118,10 +118,10 @@ module.exports = {
 
   placeInductionRequest: expressAsyncHandler(async (req, res) => {
     console.log("Volunteer request for induction");
-    console.log("Data is: ",req.body);
-    const alreadyUser = await InductionRequest.findOne({email: req.body.email});
-    if(alreadyUser){
-      res.status('401').send({error: 1, message: "Email already been used. \nKindly use differnt email"});
+    console.log("Data is: ", req.body);
+    const alreadyUser = await InductionRequest.findOne({ email: req.body.email });
+    if (alreadyUser) {
+      res.status('401').send({ error: 1, message: "Email already been used. \nKindly use differnt email" });
     }
     else {
       const user = new InductionRequest(req.body);
@@ -299,19 +299,17 @@ module.exports = {
     pickup_coordinates = req.body.pickup_coordinates ? req.body.pickup_coordinates : [];
     //get all volunteers from the database with ongoing_pickup=false
     //there should be a field in the schema of volunteer that has the location coordinates
-    const resp = await Volunteer.find(
-      {
-        location:
-        {
-          $near:
-          {
-            $geometry: { type: "Point", coordinates: pickup_coordinates },
-            $minDistance: 0,
-            $maxDistance: 100
-          }
+    const resp = await Volunteer.aggregate([
+      {$geoNear: {
+          near: {type: "Point", coordinates: pickup_coordinates },
+          distanceField: "dist.calculated",
+          key: "location",
+          maxDistance: 100000000,
+          spherical:true,
+          query: {"ongoing_pickup":false}
         }
       }
-    )
+    ])
     console.log(resp);
     res.send({ "message": resp });
   }),
