@@ -4,7 +4,8 @@ const bcrypt = require('bcryptjs');
 const Volunteer = require('../models/volunteer');
 const Provider = require('../models/provider');
 const Pickup = require('../models/pickup');
-const { generateToken, isAuth } = require('../utils.js');
+const Token = require('../models/token');
+const { generateToken, isAuth, sendEmail } = require('../utils.js');
 
 module.exports = {
 
@@ -24,12 +25,18 @@ module.exports = {
       const createdUser = await user.save();
 
       //respond to request
+      if(createdUser){
       res.send({
         _id: createdUser._id,
         name: createdUser.name,
         email: createdUser.email,
         token: generateToken(createdUser),
       });
+    }else{
+      res.send({
+        message: "Incorrect information provided"
+      })
+    }
     }
   }),
 
@@ -147,6 +154,71 @@ module.exports = {
       res.send("The pickup doesn't dexist")
     }
 
+  }),
+  auth_forgot: expressAsyncHandler(async (req, res) =>{
+    const user = await Provider.findOne({ email: req.body.email });
+    if (user) {
+      const alreadyToken = await Token.findOne({userId: user._id});
+      if(alreadyToken){
+        await alreadyToken.remove();
+      }
+      var val = Math.floor(100000 + Math.random() * 900000);
+      const otp = val.toString();
+      const token = new Token({
+        userId :user._id,
+        otp: otp
+      });
+      await token.save();
+      const text = "You have requested for password reset, kindly note the OTP given below to verify yourself in the app. \n Your OTP is: ";
+      const message = text.concat(otp);
+      const sentMail = await sendEmail(user.email, "Password reset for RHA", message);
+      console.log("Problem with email", sentMail);
+      if(sentMail)
+        res.send({error: 0, message:"Password-reset-email has been sent to your Email address"});
+      else
+        res.status(404).send({error: 1, message: 'Error: Email could not be sent due to some error'});
+    }
+    else{
+      res.status(401).send({error: 1, message: 'Invalid email' });
+    }
+  }),
+
+  auth_forgot_verifyOTP: expressAsyncHandler(async (req, res)=>{
+    const user = await Provider.findOne({ email: req.body.email });
+    if(user){
+      const token = await Token.findOne({ userId: user._id, otp: req.body.otp});
+      if(token){
+        res.send({error: 0, tokenId: token._id, message: 'Token Verified Sucessfully!'});
+      }
+      else{
+        res.status(401).send({error: 1, message: 'OTP invalid or expired'});  
+      }
+    }
+    else{
+      res.status(404).send({error: 1, message: 'No user with this Email' });
+    }
+  }),
+
+  auth_forgot_changePassword: expressAsyncHandler(async (req, res)=>{
+    const user = await Provider.findOne({ email: req.body.email });
+    if(user){
+      const token = await Token.findOne({ userId: user._id, otp: req.body.otp});
+      if(token){
+        await Provider.updateOne(
+          {_id: user._id},
+          { password: bcrypt.hashSync(req.body.newPassword, 8)},
+          { upsert: true }
+        );
+        await token.remove();
+        res.send({error: 0, message: 'Your Password has been sucessfully changed.'});
+      }
+      else{
+        res.status(401).send({error: 1, message: 'OTP invalid or expired'});  
+      }
+    }
+    else{
+      res.status(404).send({error: 1, message: 'No user with this Email' });
+    }
   })
 
 };

@@ -5,25 +5,27 @@ const Admin = require('../../models/admin');
 const Token = require('../../models/token');
 const { generateToken, sendEmail } = require('../../utils.js');
 const helpers = require("../../helpers/adminVolunteerHelpers.js"); 
-const volunteerRouter = express.Router();
+const adminVolunteerRouter = express.Router();
 
 /*
 get volunteer
 pass query as parameters
 */
-volunteerRouter.get("/:id", helpers.get_volunteer); 
+adminVolunteerRouter.get("/:id", helpers.get_volunteer); 
 
 //get all volunteers
-volunteerRouter.get("/", helpers.get_volunteers);
+adminVolunteerRouter.get("/", helpers.get_volunteers);
 
 //create volunteer
-volunteerRouter.post("/", helpers.register);
+adminVolunteerRouter.post("/", helpers.register);
 
 //update volunteer
-volunteerRouter.patch("/:id", helpers.updateProfie);
+adminVolunteerRouter.patch("/:id", helpers.updateProfie);
 
 //delete volunteer
-volunteerRouter.delete("/:id",helpers.delete_volunteer);
+adminVolunteerRouter.delete("/:id",helpers.delete_volunteer);
 
+//search for volunteers
+adminVolunteerRouter.post('/search', helpers.search_volunteers);
 
-module.exports = volunteerRouter;
+module.exports = adminVolunteerRouter;

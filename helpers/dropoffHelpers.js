@@ -4,7 +4,6 @@ const bcrypt = require('bcryptjs');
 const Volunteer = require('../models/volunteer');
 const Pickup = require('../models/pickup');
 const Dropoff = require("../models/dropoff");
-const { generateToken, isAuth } = require('../utils.js');
 const dropoff = require('../models/dropoff');
 
 module.exports = {

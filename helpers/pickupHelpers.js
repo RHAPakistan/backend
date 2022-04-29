@@ -4,13 +4,14 @@ const bcrypt = require('bcryptjs');
 const Volunteer = require('../models/volunteer');
 const Provider = require('../models/provider');
 const Pickup = require('../models/pickup');
+const Admin = require('../models/admin');
 const { generateToken, isAuth } = require('../utils.js');
 
 module.exports = {
 
     get_pickups: expressAsyncHandler(async (req, res) => {
         //if the params have status code
-        const pickups = await Pickup.find(req.query.status?{"status":req.query.status}:{});
+        const pickups = await Pickup.find(req.query);
         if (pickups) {
             res.send({ error: 0, pickups: pickups });
         }

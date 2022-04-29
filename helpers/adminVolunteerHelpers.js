@@ -3,6 +3,7 @@ const expressAsyncHandler = require('express-async-handler');
 const bcrypt = require('bcryptjs');
 const Volunteer = require('../models/volunteer');
 const Pickup = require('../models/pickup');
+const Drive = require('../models/drive');
 const { generateToken, isAuth } = require('../utils.js');
 
 module.exports = {
@@ -49,7 +50,9 @@ module.exports = {
             dateOfBirth: req.body.dateOfBirth,
             address: req.body.address,
             gender: req.body.gender,
-            role: req.body.role
+            role: req.body.role,
+            ongoing_pickup: false,
+            location: req.body.location?req.body.location:{type:"Point", coordinates:[-1,0]}
           });
           const createdUser = await user.save();
           res.send({
@@ -112,10 +115,37 @@ module.exports = {
     delete_volunteer: expressAsyncHandler(async (req, res) => {
         const user = await Volunteer.findById(req.params.id);
         if (user) {
+          //removing this volunteer in drives
+          const updateDrive = await Drive.updateMany(
+            { },
+            { $pull: { volunteers_SignedUp: user._id }},
+          );
           const deleteUser = await user.remove();
-          res.send({error: 0, message: 'Sucessfully deleted your account', user: deleteUser });
+          res.send({error: 0, message: 'Sucessfully deleted account', user: deleteUser });
         } else {
           res.status(404).send({error: 1, message: 'User Not Found' });
         }
-      })
+      }),
+    search_volunteers: expressAsyncHandler(async (req, res)=>{
+      //const volunteers = await Volunteer.find({ fullName: { $regex: `(?i)${req.body.text}` } });
+      try{
+        let volunteers = await Volunteer.find({$text: { $search: req.body.text }});
+        if(volunteers){   
+            if(volunteers.length >0){
+              res.status(200).send({error: 0, volunteers: volunteers})
+            }
+            else{
+              volunteers = await Volunteer.find();
+              res.send({error: 1, message: "No such result. Returning all data", volunteers: volunteers});
+            }
+        }
+        else{
+            res.status(401).send({error: 2, message: "Volunteers not found"})
+        }
+      }
+      catch (error){
+        console.log("Error: ",error.codeName, error.message);
+        res.send({error: 2, message: `Code: ${error.codeName}`})
+      }
+    })
 };

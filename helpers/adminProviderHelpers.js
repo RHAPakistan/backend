@@ -36,6 +36,15 @@ module.exports = {
         }
     }),
 
+    get_providers: expressAsyncHandler(async (req,res)=>{
+      const response = await Provider.find({});
+      if (response){
+          res.status(200).send(response)
+      }else{
+          res.status(404).send({"message":"user not found"})
+      }
+  }),
+
     create_provider: expressAsyncHandler(async (req, res) => {
         console.log(req.body);
         const user = await Provider.findOne({ email: req.body.email });
@@ -78,6 +87,29 @@ module.exports = {
           res.send({ "message": "The user doesn't exist" })
         }
       }),
+
+      search_providers: expressAsyncHandler(async (req, res)=>{
+        //const providers = await Provider.find({ fullName: { $regex: `(?i)${req.body.text}` } });
+        try{
+          let providers = await Provider.find({$text: { $search: req.body.text }});
+          if(providers){   
+            if(providers.length >0){
+              res.status(200).send({error: 0, providers: providers})
+            }
+            else{
+              providers = await Provider.find();
+              res.send({error: 1, message: "No such result. Returning all data", providers: providers});
+            }
+          }
+          else{
+            res.status(401).send({error: 2, message: "Providers not found"})
+          }
+        }
+        catch (error){
+          console.log("Error: ",error.codeName, error.message);
+          res.send({error: 2, message: `Code: ${error.codeName}`})
+        }
+      })
 
 
 }

@@ -17,5 +17,9 @@ mainRouter.post('/auth', adminHelpers.auth);
 mainRouter.post('/auth/forgot', adminHelpers.auth_forgot);
 
 //to verify that otp against that mail
-mainRouter.post('/auth/forgot/verify', adminHelpers.auth_forgot_verify);
+mainRouter.post('/auth/forgot/verifyOTP', adminHelpers.auth_forgot_verifyOTP);
+
+//to change password if otp have matched
+mainRouter.post('/auth/forgot/changePassword', adminHelpers.auth_forgot_changePassword);
+
 module.exports = mainRouter;

@@ -40,26 +40,28 @@ const isAuth = (req, res, next) => {
 const sendEmail = async (email, subject, text) => {
   try {
       const transporter = nodemailer.createTransport({
-          //host: 'localhost',
+          host: 'localhost',
           service: 'gmail',
           port: 587,
           secure: false,
           auth: {
-              user: 'hassananwer12030@gmail.com',
-              pass: '*************', //set password according to your mail
+              user: process.env.email,
+              pass: process.env.emailPassword, //set password according to your mail
           },
       });
 
       await transporter.sendMail({
-          from: 'hassananwer12030@gmail.com',
+          from: process.env.email,
           to: email,
           subject: subject,
           text: text,
       });
 
       console.log("email sent sucessfully");
+      return true;
   } catch (error) {
       console.log(error, "email not sent");
+      return false;
   }
 };
 

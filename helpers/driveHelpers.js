@@ -1,10 +1,11 @@
 const express = require('express');
 const expressAsyncHandler = require('express-async-handler');
 const Drive = require("../models/drive");
+const Volunteer = require("../models/volunteer");
 
 module.exports = {
     getDrives: expressAsyncHandler(async(req,res)=>{
-        const drives = await Drive.find({});
+        const drives = await Drive.find({status: req.params.status});
         if(drives){
             res.status(200).send(drives)
         }else{
@@ -49,6 +50,21 @@ module.exports = {
                 "id": req.params.id})
         }else{
             res.status(400).send("already deleted");
+        }
+    }),
+    get_participants : expressAsyncHandler(async(req, res)=>{
+        const drive = await Drive.findById(req.params.id);
+        if(drive){
+            const volunteers = await Volunteer.find({ _id: { $in: drive.volunteers_SignedUp}}, {password: 0});
+            if (volunteers){
+                res.send({error: 0, volunteers: volunteers});
+            }
+            else{
+                res.status(401).send({error: 1, message: "No Vounteers"});
+            }
+        }
+        else{
+            res.status(401).send({error: 1, message: "Drive doesn't exist"});
         }
     })
 };
