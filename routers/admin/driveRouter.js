@@ -15,10 +15,15 @@ driveRouter.get('/participants/:id', helpers.get_participants);
 driveRouter.post('/', isAuth, helpers.createDrive);
 
 // //edit drive
-driveRouter.patch('/:id', isAuth, helpers.editDrive);
+driveRouter.patch('/:id', isAuth, helpers.update_drive);
 
 // //cancel drive
 driveRouter.delete('/:id', isAuth, helpers.deleteDrive);
 
+//get unerolled volunteers
+driveRouter.get('/volunteers/unenrolled/:id', helpers.get_unenrolled_participants);
+
+//remove volunteer from drive
+driveRouter.patch('/participant/remove/:id', helpers.remove_participant);
 
 module.exports = driveRouter;
