@@ -14,7 +14,7 @@ module.exports = {
     console.log(req.body);
     const user = await Provider.findOne({ email: req.body.email });
     if (user) {
-      res.send({ message: "email already exist" })
+      res.status(409).send({ message: "User Already Exists" })
     }
     else {
       //encrypt password
@@ -26,15 +26,16 @@ module.exports = {
 
       //respond to request
       if(createdUser){
-      res.send({
+      res.status(200).send({
         _id: createdUser._id,
         name: createdUser.name,
         email: createdUser.email,
         token: generateToken(createdUser),
+        message:"Request Processed Successfully"
       });
     }else{
-      res.send({
-        message: "Incorrect information provided"
+      res.status(400).send({
+        message: "Invalid Data Provided"
       })
     }
     }

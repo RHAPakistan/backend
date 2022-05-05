@@ -1,0 +1,78 @@
+swagger: "2.0"
+info:
+  title: "RHA Pakistan"
+  version: "1.0.0"
+  description: "The Robin Hood Army is a volunteer-based Zero funds organization that works to get surplus food from restaurants to the less fortunate sections of society in cities across India and 14 other countries."
+tags:
+  - name: "Provider"
+    description: "Restaurants and users that want to donate food."
+  - name: "Volunteer"
+    description: "Users required to manage the delivery of foods."
+  - name: "Admin"
+    description: "Users required to manage the whole system."
+paths:
+  /register:
+    post:
+      tags:
+        - "Provider"
+      summary: "Register a user as a food provider"
+      produces:
+        - "application/json"
+      consumes:
+        - "application/json"
+      parameters:
+        - in: "body"
+          name: "body parameters"
+          description: "User provides data to register himself/herself as a food provider."
+          required: true
+          schema:
+            type: "object"
+            properties:
+              fullName:
+                type: "string"
+              email:
+                type: "string"
+              cnic:
+                type: "string"
+              dateOfBirth:
+                type: "string"
+              contactNumber:
+                type: "string"
+              gender:
+                enum: ["male","female"]
+              address:
+                type: "string"
+              password:
+                type: "string"
+              ongoing_pickup:
+                example: false
+      responses:
+        200:
+          description: "Request Processed Successfully. Provides auth token in return."
+          schema:
+            type: "object"
+            properties:
+              _id:
+                type: "string"
+              name:
+                type: "string"
+              email:
+                type: "string"
+              token:
+                type: "string"
+              message:
+                example: "Request Processed Successfully"
+        400:
+          description: "Invalid Data Provided"
+          schema:
+            type: "object"
+            properties:
+              message:
+                example: "Invalid Data Provided"
+        409:
+          description: "User Already Exists"
+          schema:
+            type: "object"
+            properties:
+              message:
+                example: "User Already Exists"

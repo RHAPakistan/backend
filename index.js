@@ -25,6 +25,10 @@ const Admin = require('./models/admin');
 const PushToken = require("./models/pushToken");
 const backendHelpers = require("./helpers/backendHelpers");
 
+const swaggerUI = require("swagger-ui-express");
+const yaml = require("yamljs");
+const swaggerYAML = yaml.load('./swagger.yaml');
+
 const {
   userJoin,
   getUserSocket,
@@ -66,6 +70,8 @@ app.use('/api/admin/drive', driveRouter);
 app.use('/api/admin/induction', inductionRouter);
 app.use('/api/admin/volunteer', adminVolunteerRouter);
 app.use('/api/admin/notifications', notificationsRouter);
+app.use("/api/docs", swaggerUI.serve, swaggerUI.setup(swaggerYAML));
+
 var server = app.listen(port, () => {
   console.log(`Server is running on port: ${port}`);
 });
