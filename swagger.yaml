@@ -307,4 +307,278 @@ paths:
             properties:
               message:
                 example: "User Not Found"
+  /pickup/:id:
+    get:
+      tags:
+        - "Provider"
+      summary: "Get data of a Pickup if exists. Requires authentication token."
+      produces:
+        - "application/json"
+      consumes:
+        - "application/json"
+      parameters:
+        - in: "headers"
+          name: "authentication"
+          required: true
+          schema:
+            example: "Auth token"
+        - in: "path"
+          name: "id"
+          required: true
+          schema:
+            example: "Pickup id"
+      responses:
+        200:
+          description: "Request Processed Successfully"
+          schema:
+            type: "object"
+            properties:
+              provider:
+                type: "string"
+              pickupAddress: 
+                type: "string"
+              phone: 
+                type: "string"
+              description: 
+                type: "string"
+              placementTime: 
+                type: "string"
+              amountOfFood: 
+                type: "string"
+              typeOfFood: 
+                type: "string"
+              broadcast: 
+                example: true
+              message:
+                example: "Request Processed Successfully"
+        400:
+          description: "Token Not Provided"
+          schema:
+            type: "object"
+            properties:
+              message:
+                example: "Token Not Provided"
+        401:
+          description: "Invalid Token"
+          schema:
+            type: "object"
+            properties:
+              message:
+                example: "Invalid Token"
+        404:
+          description: "Pickup Not Found"
+          schema:
+            type: "object"
+            properties:
+              message:
+                example: "Pickup Not Found"
+    delete:
+      tags:
+        - "Provider"
+      summary: "Delete a Pickup if exists. Requires authentication token."
+      produces:
+        - "application/json"
+      consumes:
+        - "application/json"
+      parameters:
+        - in: "headers"
+          name: "authentication"
+          required: true
+          schema:
+            example: "Auth token"
+        - in: "path"
+          name: "id"
+          required: true
+          schema:
+            example: "Pickup id"
+      responses:
+        200:
+          description: "Request Processed Successfully"
+          schema:
+            type: "object"
+            properties:
+              message:
+                example: "Request Processed Successfully"
+        400:
+          description: "Token Not Provided"
+          schema:
+            type: "object"
+            properties:
+              message:
+                example: "Token Not Provided"
+        401:
+          description: "Invalid Token"
+          schema:
+            type: "object"
+            properties:
+              message:
+                example: "Invalid Token"
+        404:
+          description: "Pickup Not Found"
+          schema:
+            type: "object"
+            properties:
+              message:
+                example: "Pickup Not Found"
+    patch:
+      tags:
+        - "Provider"
+      summary: "Update data of a Pickup if exists. Requires authentication token."
+      produces:
+        - "application/json"
+      consumes:
+        - "application/json"
+      parameters:
+        - in: "headers"
+          name: "authentication"
+          required: true
+          schema:
+            example: "Auth token"
+        - in: "path"
+          name: "id"
+          required: true
+          schema:
+            example: "Pickup id"
+        - in: "body"
+          name: "body parameters"
+          required: true
+          schema:
+            type: "object"
+            properties:
+              provider:
+                type: "string"
+              pickupAddress: 
+                type: "string"
+              phone: 
+                type: "string"
+              description: 
+                type: "string"
+              placementTime: 
+                type: "string"
+              amountOfFood: 
+                type: "string"
+              typeOfFood: 
+                type: "string"
+              broadcast:
+                example: true
+              status:
+                example: 0
+      responses:
+        200:
+          description: "Request Processed Successfully"
+          schema:
+            type: "object"
+            properties:
+              message:
+                example: "Request Processed Successfully"
+        400:
+          description: "Token Not Provided"
+          schema:
+            type: "object"
+            properties:
+              message:
+                example: "Token Not Provided"
+        401:
+          description: "Invalid Token"
+          schema:
+            type: "object"
+            properties:
+              message:
+                example: "Invalid Token"
+        404:
+          description: "Pickup Not Found"
+          schema:
+            type: "object"
+            properties:
+              message:
+                example: "Pickup Not Found"
+  /pickup/register:
+    post:
+      tags:
+        - "Provider"
+      summary: "Create a Pickup if not exists. Requires authentication token."
+      produces:
+        - "application/json"
+      consumes:
+        - "application/json"
+      parameters:
+        - in: "headers"
+          name: "authentication"
+          required: true
+          schema:
+            example: "Auth token"
+        - in: "path"
+          name: "id"
+          required: true
+          schema:
+            example: "Pickup id"
+        - in: "body"
+          name: "body parameters"
+          required: true
+          schema:
+            type: "object"
+            properties:
+              provider:
+                type: "string"
+              pickupAddress: 
+                type: "string"
+              phone: 
+                type: "string"
+              description: 
+                type: "string"
+              placementTime: 
+                type: "string"
+              amountOfFood: 
+                type: "string"
+              typeOfFood: 
+                type: "string"
+              broadcast:
+                example: true
+      responses:
+        200:
+          description: "Request Processed Successfully"
+          schema:
+            type: "object"
+            properties:
+              provider:
+                type: "string"
+              pickupAddress: 
+                type: "string"
+              phone: 
+                type: "string"
+              description: 
+                type: "string"
+              placementTime: 
+                type: "string"
+              amountOfFood: 
+                type: "string"
+              typeOfFood: 
+                type: "string"
+              broadcast:
+                example: true
+              status:
+                example: 0
+              message:
+                example: "Request Processed Successfully"
+        400:
+          description: "Token Not Provided"
+          schema:
+            type: "object"
+            properties:
+              message:
+                example: "Token Not Provided"
+        401:
+          description: "Invalid Token"
+          schema:
+            type: "object"
+            properties:
+              message:
+                example: "Invalid Token"
+        409:
+          description: "Pickup Already Exists"
+          schema:
+            type: "object"
+            properties:
+              message:
+                example: "Pickup Already Exists"
     

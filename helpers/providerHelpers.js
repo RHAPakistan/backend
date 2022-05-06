@@ -108,10 +108,7 @@ module.exports = {
     const pickup = await Pickup.findOne({"provider":req.body.provider, "status":{$lt:3}});
     console.log("the body is ",req.body);
     if (pickup){
-      res.status(202).send({
-        "message":"Pickup alraedy exists",
-        "alreadyExists":true
-      })
+      res.status(409).send({message:"Pickup Already Exists"})
     }else {
       const pickup = new Pickup(req.body)
       const pickupCreated = await pickup.save()
@@ -123,9 +120,8 @@ module.exports = {
 
       res.status(200).send(
         {
-          "pickup": pickup,
-          "message":"pickup created",
-          "alreayExists":false
+          pickup,
+          message:"Request Processed Successfully",
         }
       )
     }
@@ -135,18 +131,21 @@ module.exports = {
   getPickup: expressAsyncHandler(async (req,res)=>{
     const pickup = await Pickup.findById(req.params.id)
     if (pickup){
-      res.send(pickup)
+      res.status(200).send({
+        pickup,
+        message: "Request Processed Successfully"
+      })
     }else{
-      res.send("Pickup not found")
+      res.status(404).send("Pickup Not Found")
     }
   }),
 
   deletePickup: expressAsyncHandler(async (req, res) => {
     const pickup = await Pickup.findByIdAndDelete(req.params.id)
     if (pickup){
-      res.send("The pickup has been deleted")
+      res.status(200).send({message:"Request Processed Successfully"})
     }else{
-      res.send("The pickup doesn't exist")
+      res.status(404).send({message:"Pickup Not Found"})
     }
   }),
 
@@ -154,9 +153,9 @@ module.exports = {
     //find pickup by id and update
     const pickup = await Pickup.findByIdAndUpdate(req.params.id, req.body)
     if (pickup){
-      res.send("The pickup has been updated")
+      res.status(200).send({message:"Request Processed Successfully"})
     }else{
-      res.send("The pickup doesn't dexist")
+      res.status(404).send({message:"Pickup Not Found"})
     }
 
   }),
