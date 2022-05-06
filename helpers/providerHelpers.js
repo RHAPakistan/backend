@@ -159,6 +159,7 @@ module.exports = {
     }
 
   }),
+
   auth_forgot: expressAsyncHandler(async (req, res) =>{
     const user = await Provider.findOne({ email: req.body.email });
     if (user) {
@@ -178,9 +179,9 @@ module.exports = {
       const sentMail = await sendEmail(user.email, "Password reset for RHA", message);
       console.log("Problem with email", sentMail);
       if(sentMail)
-        res.send({error: 0, message:"Password-reset-email has been sent to your Email address"});
+        res.status(200).send({message:"Request Processed Successfully"});
       else
-        res.status(404).send({error: 1, message: 'Error: Email could not be sent due to some error'});
+        res.status(404).send({message: 'User Not Found'});
     }
     else{
       res.status(401).send({error: 1, message: 'Invalid email' });
@@ -192,14 +193,14 @@ module.exports = {
     if(user){
       const token = await Token.findOne({ userId: user._id, otp: req.body.otp});
       if(token){
-        res.send({error: 0, tokenId: token._id, message: 'Token Verified Sucessfully!'});
+        res.status(200).send({tokenId: token._id, message: 'Request Processed Successfully'});
       }
       else{
-        res.status(401).send({error: 1, message: 'OTP invalid or expired'});  
+        res.status(401).send({message: 'Invalid OTP'});  
       }
     }
     else{
-      res.status(404).send({error: 1, message: 'No user with this Email' });
+      res.status(404).send({message: 'User Not Found' });
     }
   }),
 
@@ -214,14 +215,14 @@ module.exports = {
           { upsert: true }
         );
         await token.remove();
-        res.send({error: 0, message: 'Your Password has been sucessfully changed.'});
+        res.status(200).send({message: 'Request Processed Successfully'});
       }
       else{
-        res.status(401).send({error: 1, message: 'OTP invalid or expired'});  
+        res.status(401).send({message: 'Invalid OTP'});  
       }
     }
     else{
-      res.status(404).send({error: 1, message: 'No user with this Email' });
+      res.status(404).send({message: 'User Not Found' });
     }
   })
 

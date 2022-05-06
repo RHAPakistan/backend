@@ -122,6 +122,122 @@ paths:
             properties:
               message:
                 example: "Invalid Credentials Provided"
+  /auth/forgot:
+    post:
+      tags:
+        - "Provider"
+      summary: "Generates an OTP if user has forgotten his/her password."
+      produces:
+        - "application/json"
+      consumes:
+        - "application/json"
+      parameters:
+      - in: "body"
+        name: "email"
+        required: true
+        schema:
+          example: "User Email"
+      responses:
+        200:
+          description: "Request Processed Successfully"
+          schema:
+            type: "object"
+            properties:
+              message:
+                example: "Request Processed Successfully"
+        404:
+          description: "User Not Found"
+          schema:
+            type: "object"
+            properties:
+              message:
+                example: "User Not Found"
+  /auth/forgot/verifyOTP:
+    post:
+      tags:
+        - "Provider"
+      summary: "Verifies an OTP if user has forgotten his/her password."
+      produces:
+        - "application/json"
+      consumes:
+        - "application/json"
+      parameters:
+      - in: "body"
+        name: "email"
+        required: true
+        schema:
+          type: "object"
+          properties:
+            email:
+              type: "string"
+            otp:
+              type: "string"
+      responses:
+        200:
+          description: "Request Processed Successfully"
+          schema:
+            type: "object"
+            properties:
+              message:
+                example: "Request Processed Successfully"
+        401:
+          description: "Invalid OTP"
+          schema:
+            type: "object"
+            properties:
+              message:
+                example: "Invalid OTP"
+        404:
+          description: "User Not Found"
+          schema:
+            type: "object"
+            properties:
+              message:
+                example: "User Not Found"
+  /auth/forgot/changePassword:
+    post:
+      tags:
+        - "Provider"
+      summary: "Save a new password for user who has verified the OTP."
+      produces:
+        - "application/json"
+      consumes:
+        - "application/json"
+      parameters:
+      - in: "body"
+        name: "email"
+        required: true
+        schema:
+          type: "object"
+          properties:
+            email:
+              type: "string"
+            newPassword:
+              type: "string"
+            otp:
+              type: "string"
+      responses:
+        200:
+          description: "Request Processed Successfully"
+          schema:
+            type: "object"
+            properties:
+              message:
+                example: "Request Processed Successfully"
+        401:
+          description: "Invalid OTP"
+          schema:
+            type: "object"
+            properties:
+              message:
+                example: "Invalid OTP"
+        404:
+          description: "User Not Found"
+          schema:
+            type: "object"
+            properties:
+              message:
+                example: "User Not Found"
   /:id:
     get:
       tags:
