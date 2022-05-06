@@ -76,3 +76,235 @@ paths:
             properties:
               message:
                 example: "User Already Exists"
+  /signin:
+    post:
+      tags:
+        - "Provider"
+      summary: "Verifies if user already exists, and assigns authentication token."
+      produces:
+        - "application/json"
+      consumes:
+        - "application/json"
+      parameters:
+        - in: "body"
+          name: "body parameters"
+          description: "Provides authentication token if user is already registered."
+          required: true
+          schema:
+            type: "object"
+            properties:
+              email:
+                type: "string"
+              password:
+                type: "string"
+      responses:
+        200:
+          description: "Request Processed Successfully. Provides auth token in return."
+          schema:
+            type: "object"
+            properties:
+              _id:
+                type: "string"
+              name:
+                type: "string"
+              email:
+                type: "string"
+              contactNumber:
+                type: "string"
+              token:
+                type: "string"
+              message:
+                example: "Request Processed Successfully"
+        400:
+          description: "Invalid Data Provided"
+          schema:
+            type: "object"
+            properties:
+              message:
+                example: "Invalid Credentials Provided"
+  /:id:
+    get:
+      tags:
+        - "Provider"
+      summary: "Get data of a User if exists. Requires authentication token."
+      produces:
+        - "application/json"
+      consumes:
+        - "application/json"
+      parameters:
+        - in: "headers"
+          name: "authentication"
+          required: true
+          schema:
+            example: "Auth token"
+        - in: "path"
+          name: "id"
+          required: true
+          schema:
+            example: "Provider id"
+      responses:
+        200:
+          description: "Request Processed Successfully"
+          schema:
+            type: "object"
+            properties:
+              fullName:
+                type: "string"
+              contactNumber:
+                type: "string"
+              email:
+                type: "string"
+              password:
+                type: "string"
+              cnic:
+                type: "String"
+              dateOfBirth:
+                type: "string"
+              address:
+                type: "string"
+              gender:
+                type: "string"
+              ongoing_pickup:
+                example: false
+              message:
+                example: "Request Processed Successfully"
+        400:
+          description: "Token Not Provided"
+          schema:
+            type: "object"
+            properties:
+              message:
+                example: "Token Not Provided"
+        401:
+          description: "Invalid Token"
+          schema:
+            type: "object"
+            properties:
+              message:
+                example: "Invalid Token"
+        404:
+          description: "User Not Found"
+          schema:
+            type: "object"
+            properties:
+              message:
+                example: "User Not Found"
+    delete:
+      tags:
+        - "Provider"
+      summary: "Delete a User if exists. Requires authentication token."
+      produces:
+        - "application/json"
+      consumes:
+        - "application/json"
+      parameters:
+        - in: "headers"
+          name: "authentication"
+          required: true
+          schema:
+            example: "Auth token"
+        - in: "path"
+          name: "id"
+          required: true
+          schema:
+            example: "Provider id"
+      responses:
+        200:
+          description: "Request Processed Successfully"
+          schema:
+            type: "object"
+            properties:
+              message:
+                example: "Request Processed Successfully"
+        400:
+          description: "Token Not Provided"
+          schema:
+            type: "object"
+            properties:
+              message:
+                example: "Token Not Provided"
+        401:
+          description: "Invalid Token"
+          schema:
+            type: "object"
+            properties:
+              message:
+                example: "Invalid Token"
+        404:
+          description: "User Not Found"
+          schema:
+            type: "object"
+            properties:
+              message:
+                example: "User Not Found"
+    patch:
+      tags:
+        - "Provider"
+      summary: "Update data of a User if exists. Requires authentication token."
+      produces:
+        - "application/json"
+      consumes:
+        - "application/json"
+      parameters:
+        - in: "headers"
+          name: "authentication"
+          required: true
+          schema:
+            example: "Auth token"
+        - in: "path"
+          name: "id"
+          required: true
+          schema:
+            example: "Provider id"
+        - in: "body"
+          name: "body parameters"
+          required: true
+          schema:
+            type: "object"
+            properties:
+              fullName:
+                type: "string"
+              contactNumber:
+                type: "string"
+              email:
+                type: "string"
+              password:
+                type: "string"
+              cnic:
+                type: "String"
+              dateOfBirth:
+                type: "string"
+              address:
+                type: "string"
+              gender:
+                type: "string"
+      responses:
+        200:
+          description: "Request Processed Successfully"
+          schema:
+            type: "object"
+            properties:
+              message:
+                example: "Request Processed Successfully"
+        400:
+          description: "Token Not Provided"
+          schema:
+            type: "object"
+            properties:
+              message:
+                example: "Token Not Provided"
+        401:
+          description: "Invalid Token"
+          schema:
+            type: "object"
+            properties:
+              message:
+                example: "Invalid Token"
+        404:
+          description: "User Not Found"
+          schema:
+            type: "object"
+            properties:
+              message:
+                example: "User Not Found"
+    

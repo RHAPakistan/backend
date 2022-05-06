@@ -49,18 +49,19 @@ module.exports = {
     
     if (user) {
       if (bcrypt.compareSync(req.body.password, user.password)) {
-        res.send({
+        res.status(200).send({
           _id: user._id,
           fullName: user.fullName,
           email: user.email,
           contactNumber: user.contactNumber,
+          message:"Request Processed Successfully",
           token: generateToken(user),
         });
       }else{
-        res.status(401).send({"message": "Invalid email or password"});
+        res.status(400).send({message: "Invalid Credentials Provided"});
       }
     }else{
-    res.status(401).send({ message: 'Invalid email or password' });
+    res.status(400).send({ message: "Invalid Credentials Provided" });
     }
   }),
 
@@ -69,7 +70,10 @@ module.exports = {
     
     const user = await Provider.findById(req.params.id);
     if (user) {
-      res.send(user);
+      res.send({
+        message: "Request Processed Successfully",
+        ...user
+      });
     } else {
       res.status(404).send({ message: 'User Not Found' });
     }
@@ -80,9 +84,9 @@ module.exports = {
     const user = await Provider.findByIdAndDelete(req.params.id);
     console.log(user)
     if (user) {
-      res.status(500).send({ "success": "Provider deleted succesfully" })
+      res.status(200).send({ message: "Request Processed Successfully" })
     } else {
-      res.send({ "message": "The user doesn't exist" })
+      res.status(404).send({ message: "User Not Found" })
     }
   }),
 
@@ -90,10 +94,10 @@ module.exports = {
   updateUser: expressAsyncHandler(async (req, res) => {
     const user = await Provider.findByIdAndUpdate(req.params.id, req.body)
     if (user) {
-      res.send("User info updated succesfully")
+      res.send({message:"Request Processed Successfully"})
     }
     else {
-      res.send("User info not updated")
+      res.status(404).send({message:"User Not Found"})
     }
 
   }),
