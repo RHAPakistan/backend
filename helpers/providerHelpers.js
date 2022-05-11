@@ -12,32 +12,32 @@ module.exports = {
   //register provider
   register: expressAsyncHandler(async (req, res) => {
     console.log(req.body);
-    const user = await Provider.findOne({ email: req.body.email });
-    if (user) {
+    const auser = await Provider.findOne({ email: req.body.email });
+    if (auser) {
       res.status(409).send({ message: "User Already Exists" })
     }
     else {
-      //encrypt password
-      req.body.password = bcrypt.hashSync(req.body.password, 8)
-
       //create new provider
-      const user = new Provider(req.body);
+      const user = new Provider({
+        ...req.body,
+        password: bcrypt.hashSync(req.body.password, 8)
+      });
       const createdUser = await user.save();
 
       //respond to request
       if(createdUser){
-      res.status(200).send({
-        _id: createdUser._id,
-        name: createdUser.name,
-        email: createdUser.email,
-        token: generateToken(createdUser),
-        message:"Request Processed Successfully"
-      });
-    }else{
-      res.status(400).send({
-        message: "Invalid Data Provided"
-      })
-    }
+        res.status(200).send({
+          _id: createdUser._id,
+          name: createdUser.name,
+          email: createdUser.email,
+          token: generateToken(createdUser),
+          message:"Request Processed Successfully"
+        });
+      }else{
+        res.status(400).send({
+          message: "Invalid Data Provided"
+        })
+      }
     }
   }),
 

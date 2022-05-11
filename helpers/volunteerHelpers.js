@@ -94,53 +94,50 @@ module.exports = {
     //console.log(req.body);
     const user = await Volunteer.findOne({ email: req.body.email });
     if (user) {
-      res.send({ message: "email already exist" })
+      res.status(409).send({ message: "User Already Exists" })
     }
     else {
       const user = new Volunteer({
-        fullName: req.body.fullName,
-        email: req.body.email,
+        ...req.body,
         password: bcrypt.hashSync(req.body.password, 8),
-        contactNumber: req.body.contactNumber,
-        cnic: req.body.cnic,
-        dateOfBirth: req.body.dateOfBirth,
-        address: req.body.address,
-        gender: req.body.gender,
-        role: req.body.role,
         location: req.body.location ? req.body.location : { type: "Point", coordinates: [-1, 0] }
       });
       const createdUser = await user.save();
-      res.send({
-        error: 0,
-        _id: createdUser._id,
-        name: createdUser.name,
-        email: createdUser.email,
-        token: generateToken(createdUser),
-      });
+      if(createdUser){
+        res.status(200).send({
+          _id: createdUser._id,
+          name: createdUser.name,
+          email: createdUser.email,
+          token: generateToken(createdUser),
+          message:"Request Processed Successfully"
+        });
+      }else{
+        res.status(400).send({
+          message: "Invalid Data Provided"
+        })
+      }
     }
   }),
 
   placeInductionRequest: expressAsyncHandler(async (req, res) => {
     console.log("Volunteer request for induction");
     console.log("Data is: ", req.body);
-    const alreadyUser = await InductionRequest.findOne({ email: req.body.email });
-    if (alreadyUser) {
-      res.status('401').send({ error: 1, message: "Email already been used. \nKindly use differnt email" });
+    const auser = await Volunteer.findOne({ email: req.body.email });
+    if (auser) {
+      res.status(409).send({ message: "User Already Exists" })
     }
     else {
       const user = new InductionRequest(req.body);
       const createdUser = await user.save();
       if (createdUser) {
         res.send({
-          error: 0,
-          message: "Request submitted sucessfully! \nYour Request has been sent to Admin. He/She will go through it and will email you! \nKindly wait for the email",
+          message:"Request Processed Successfully",
           user: createdUser
         })
       }
       else {
-        res.status(500).send({
-          error: 1,
-          message: "Some Error occured"
+        res.status(400).send({
+          message: "Invalid Data Provided"
         })
       }
     }
@@ -149,30 +146,29 @@ module.exports = {
   login: expressAsyncHandler(async (req, res) => {
     console.log("Volunteer attempted login");
     console.log(req.body.email);
-    console.log(req.body.password);
     const user = await Volunteer.findOne({ email: req.body.email });
     //console.log(user._id);
     if (user) {
       if (bcrypt.compareSync(req.body.password, user.password)) {
         const activePickups = await Pickup.find({ status: 1 });
         const pickupHistory = await Pickup.find({ volunteer_id: user._id });
-        res.send({
-          error: 0,
+        res.status(200).send({
           _id: user._id,
           fullName: user.fullName,
           email: user.email,
+          contactNumber: user.contactNumber,
+          message:"Request Processed Successfully",
+          token: generateToken(user),
           activePickups: activePickups,
           pickupHistory: pickupHistory,
-          contactNumber: user.contactNumber,
-          token: generateToken(user),
         });
       }
       else {
-        res.status(401).send({ error: 1, message: 'Invalid password' });
+        res.status(400).send({message: "Invalid Credentials Provided"});
       }
     }
     else {
-      res.status(401).send({ error: 1, message: 'Invalid email' });
+      res.status(400).send({message: "Invalid Credentials Provided"});
     }
   }),
 
