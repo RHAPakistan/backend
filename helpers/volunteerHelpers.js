@@ -188,11 +188,11 @@ module.exports = {
         },
         { upsert: true });
       const updatedUser = await Volunteer.findById(req.params.id);
-      res.send({ error: 0, message: "Successfully updated", updatedUser: updatedUser });
+      res.send({ message: "Successfully updated", ...updatedUser });
 
     }
     else {
-      res.status(404).send({ message: "User not found" });
+      res.status(404).send({ message: "User Not Found" });
     }
   }),
   delete_volunteer: expressAsyncHandler(async (req, res) => {

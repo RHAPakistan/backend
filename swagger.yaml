@@ -423,7 +423,7 @@ paths:
             properties:
               message:
                 example: "User Not Found"
-  /api/provider/pickup/:id:
+  /api/provider/pickup/{id}:
     get:
       tags:
         - "Provider"
@@ -1098,4 +1098,87 @@ paths:
             properties:
               message:
                 example: "User Not Found"
-  
+  /api/volunteer/editProfile/{id}:
+    patch:
+      tags:
+        - "Volunteer"
+      summary: "Edit Profile details of volunteer. Requires authentication token."
+      produces:
+        - "application/json"
+      consumes:
+        - "application/json"
+      parameters:
+        - in: "headers"
+          name: "authentication"
+          required: true
+          schema:
+            example: "Auth token"
+        - in: "path"
+          name: "id"
+          required: true
+          schema:
+            example: "Pickup id"
+        - in: "body"
+          name: "body parameters"
+          required: true
+          schema:
+            type: "object"
+            properties:
+              fullName:
+                type: "string"
+              contactNumber:
+                type: "string"
+              email:
+                type: "string"
+              cnic:
+                type: "string"
+              dateOfBirth:
+                type: "string"
+              address:
+                type: "string"
+              gender:
+                type: "string"
+      responses:
+        200:
+          description: "Request Processed Successfully"
+          schema:
+            type: "object"
+            properties:
+              fullName:
+                type: "string"
+              contactNumber:
+                type: "string"
+              email:
+                type: "string"
+              cnic:
+                type: "string"
+              dateOfBirth:
+                type: "string"
+              address:
+                type: "string"
+              gender:
+                type: "string"
+              role:
+                type: "string"
+              ongoing_pickup:
+                type: "boolean"
+              location:
+                type: "object"
+                properties:
+                  type: "object"
+                  properties:
+                    type:
+                      example: "Point"
+                    coordinates:
+                      type: "array"
+                      items:
+                        type: "integer"
+              message:
+                example: "Request Processed Successfully"
+        404:
+          description: "User Not Found"
+          schema:
+            type: "object"
+            properties:
+              message:
+                example: "User Not Found"
