@@ -261,15 +261,15 @@ module.exports = {
     const user = await Volunteer.findOne({ email: req.body.email });
     if (user) {
       const token = await Token.findOne({ userId: user._id, otp: req.body.otp });
-      if (token) {
-        res.send({ error: 0, tokenId: token._id, message: 'Token Verified Sucessfully!' });
+      if(token){
+        res.status(200).send({tokenId: token._id, message: 'Request Processed Successfully'});
       }
-      else {
-        res.status(401).send({ error: 1, message: 'OTP invalid or expired' });
+      else{
+        res.status(401).send({message: 'Invalid OTP'});  
       }
     }
     else {
-      res.status(404).send({ error: 1, message: 'No user with this Email' });
+      res.status(404).send({message: 'User Not Found' });
     }
   }),
 
@@ -284,14 +284,14 @@ module.exports = {
           { upsert: true }
         );
         await token.remove();
-        res.send({ error: 0, message: 'Your Password has been sucessfully changed.' });
+        res.status(200).send({message: 'Request Processed Successfully'});
       }
       else {
-        res.status(401).send({ error: 1, message: 'OTP invalid or expired' });
+        res.status(401).send({message: 'Invalid OTP'});  
       }
     }
     else {
-      res.status(404).send({ error: 1, message: 'No user with this Email' });
+      res.status(404).send({message: 'User Not Found' });
     }
   }),
   get_by_distance: expressAsyncHandler(async (req, res) => {

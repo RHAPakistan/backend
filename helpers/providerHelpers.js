@@ -184,7 +184,7 @@ module.exports = {
         res.status(404).send({message: 'User Not Found'});
     }
     else{
-      res.status(401).send({error: 1, message: 'Invalid email' });
+      res.status(404).send({message: 'User Not Found'});
     }
   }),
 
