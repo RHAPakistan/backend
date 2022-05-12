@@ -451,20 +451,45 @@ paths:
             properties:
               provider:
                 type: "string"
-              pickupAddress: 
+              admin:
                 type: "string"
-              phone: 
+              volunteer:
                 type: "string"
-              description: 
+              provider_phone:
                 type: "string"
-              placementTime: 
+              description:
                 type: "string"
-              amountOfFood: 
+              pickupAddress:
                 type: "string"
-              typeOfFood: 
+              deliveryAddress:
                 type: "string"
-              broadcast: 
-                example: true
+              placementTime:
+                type: "string"
+              acceptanceTime:
+                type: "string"
+              pickUpTime:
+                type: "string"
+              cancelTime:
+                type: "string"
+              deliveryTime:
+                type: "string"
+              amountOfFood:
+                type: "string"
+              typeOfFood:
+                type: "string"
+              broadcast:
+                type: "string"
+              status:
+                example: 1
+              pickupCoordinate:
+                type: "object"
+                properties:
+                  type:
+                    example: "Point"
+                  cordinates:
+                    type: "array"
+                    items:
+                      type: "integer"
               message:
                 example: "Request Processed Successfully"
         400:

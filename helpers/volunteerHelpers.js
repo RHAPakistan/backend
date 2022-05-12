@@ -248,12 +248,12 @@ module.exports = {
       const message = text.concat(otp);
       const sentMail = await sendEmail(user.email, "Password reset for RHA", message);
       if (sentMail)
-        res.send({ error: 0, message: "Password-reset-email has been sent to your Email address" });
+        res.status(200).send({message: "Request Processed Successfully"});
       else
-        res.status(404).send({ error: 1, message: 'Error: Email could not be sent due to some error' });
+        res.status(404).send({message: "User Not Found"});
     }
     else {
-      res.status(401).send({ error: 1, message: 'Invalid email' });
+      res.status(404).send({message: "User Not Found"});
     }
   }),
 
